@@ -4,7 +4,7 @@ import {
   Database, RefreshCw, Upload, X, Check, Layers,
   Image as ImageIcon, Settings, ChevronDown,
   ChevronLeft, ChevronRight, Star, FolderTree, Palette,
-  ShoppingBag, Download, Eye, Phone, MapPin, MessageCircle, Calendar
+  ShoppingBag, Download, Eye, Phone, MapPin, MessageCircle, Calendar, Menu
 } from 'lucide-react';
 import { 
   getAllProducts, saveProduct, deleteProduct, 
@@ -61,7 +61,8 @@ const STANDARD_VARIANTS_TEMPLATE = [
 ];
 
 export default function AdminDashboard({ onLogout, onNavigateToStore }) {
-  const [activeTab, setActiveTab] = useState('products'); // 'products' | 'orders'
+  const [activeNav, setActiveNav] = useState('products'); // 'products' | 'orders' | 'collections' | 'settings'
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const [collections, setCollections] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -122,6 +123,14 @@ export default function AdminDashboard({ onLogout, onNavigateToStore }) {
 
   useEffect(() => {
     loadData();
+    try {
+      const savedUrl = localStorage.getItem('faneelo_vite_supabase_url') || '';
+      const savedKey = localStorage.getItem('faneelo_vite_supabase_anon_key') || '';
+      if (savedUrl) setSupabaseUrlInput(savedUrl);
+      if (savedKey) setSupabaseKeyInput(savedKey);
+    } catch {
+      // ignore
+    }
   }, []);
 
   // Reset pagination to page 1 on search or filter change
@@ -480,6 +489,25 @@ export default function AdminDashboard({ onLogout, onNavigateToStore }) {
     await loadData();
   };
 
+  const handleEditCollection = (col) => {
+    setEditingCollection(col);
+    setColFormName(col.name);
+    setColFormDesc(col.description || '');
+    setColFormImage(col.image || '');
+    setIsCollectionsOpen(true);
+  };
+
+  const handleDisconnectSupabase = () => {
+    if (!window.confirm('Disconnect Supabase and switch back to Local Catalog Mode?')) return;
+    try {
+      localStorage.removeItem('faneelo_vite_supabase_url');
+      localStorage.removeItem('faneelo_vite_supabase_anon_key');
+      window.location.reload();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   // Filtering & Pagination Calculations
   const filteredProducts = products.filter((p) => {
     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -500,126 +528,388 @@ export default function AdminDashboard({ onLogout, onNavigateToStore }) {
   const isCloud = isSupabaseConfigured();
 
   return (
-    <div className="min-h-screen bg-[#F8F7F4] text-[#111111] font-sans pb-24">
+    <div className="admin-layout-container font-sans antialiased">
       
-      {/* Top Header */}
-      <header className="sticky top-0 z-40 bg-white border-b border-[#E6E6E6] shadow-2xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="font-display text-2xl font-normal tracking-tight text-[#111111]">
-              Faneelo<span className="text-[#C47C5A]">.</span>
-            </span>
-            <span className="rounded-full admin-badge-black px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-              ADMIN CMS
-            </span>
-            <span className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
-              isCloud ? 'bg-[#EAF4E2] text-[#2E7D32]' : 'bg-[#FFFBEB] text-[#B45309]'
-            }`}>
-              <Database size={13} />
-              {isCloud ? 'Live Supabase Cloud' : 'Local Catalog Mode'}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            <button
-              type="button"
-              onClick={handleOpenCollectionsManager}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-[#D6D3D1] bg-white text-xs font-semibold text-[#111111] hover:bg-[#F5F5F4] transition-colors cursor-pointer"
-              title="Manage Collections & Cover Images"
-            >
-              <FolderTree size={13} /> Collections ({collections.length})
-            </button>
-
-            <button
-              type="button"
-              onClick={onNavigateToStore}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-[#D6D3D1] bg-white text-xs font-semibold text-[#111111] hover:bg-[#F5F5F4] transition-colors cursor-pointer"
-            >
-              <ExternalLink size={13} /> View Website
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setIsSettingsOpen(true)}
-              className="p-2 rounded-full border border-[#D6D3D1] bg-white text-[#555555] hover:text-[#111111] hover:bg-[#F5F5F4] transition-colors cursor-pointer"
-              title="Cloud Database Settings"
-            >
-              <Settings size={16} />
-            </button>
-
-            <button
-              type="button"
-              onClick={onLogout}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-red-50 text-red-700 text-xs font-semibold hover:bg-red-100 transition-colors cursor-pointer border border-red-200"
-            >
-              <LogOut size={13} /> Log Out
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Notifications */}
+      {/* Notifications Toast */}
       {notification && (
-        <div className={`fixed top-20 right-6 z-50 px-4 py-3 rounded-2xl shadow-lg border text-xs font-semibold flex items-center gap-2 ${
+        <div className={`fixed top-6 right-6 z-50 px-4 py-3 rounded-2xl shadow-xl border text-xs font-semibold flex items-center gap-2 backdrop-blur-md transition-all ${
           notification.type === 'error' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-[#EAF4E2] text-[#2E7D32] border-[#C8E6C9]'
         }`}>
           <Check size={14} /> {notification.msg}
         </div>
       )}
 
-      {/* Main Content Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        
-        {/* Navigation Tabs (Products vs Orders) */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-[#E6E6E6]">
-          <div className="flex items-center gap-2">
+      {/* ================= MOBILE DRAWER BACKDROP & SIDEBAR ================= */}
+      {isMobileSidebarOpen && (
+        <div className="admin-mobile-drawer-overlay">
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+          <aside className="admin-mobile-drawer-content">
+            <div>
+              {/* Brand Header */}
+              <div className="flex items-center justify-between pb-5 border-b border-white/10 mb-6">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-display text-2xl font-normal tracking-tight text-white">
+                      Faneelo<span className="text-[#C47C5A]">.</span>
+                    </span>
+                    <span className="rounded-full bg-[#C47C5A] text-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider">
+                      CMS
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-stone-400 mt-1">Luxury Sofa Studio Admin</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsMobileSidebarOpen(false)}
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Status Pill */}
+              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-xs mb-6">
+                <span className={`w-2 h-2 rounded-full ${isCloud ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                <span className="text-stone-300 text-[11px] font-medium truncate">
+                  {isCloud ? 'Live Supabase Cloud' : 'Local Storage Mode'}
+                </span>
+              </div>
+
+              {/* Navigation Items */}
+              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 px-3 mb-2">
+                Store Management
+              </p>
+              <nav className="space-y-1 mb-6">
+                <button
+                  type="button"
+                  onClick={() => { setActiveNav('products'); setIsMobileSidebarOpen(false); }}
+                  className={`admin-sidebar-nav-item ${activeNav === 'products' ? 'admin-sidebar-nav-item-active' : ''}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Layers size={17} className="admin-nav-icon" />
+                    <span>Products</span>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-stone-300">
+                    {products.length}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { setActiveNav('orders'); setIsMobileSidebarOpen(false); }}
+                  className={`admin-sidebar-nav-item ${activeNav === 'orders' ? 'admin-sidebar-nav-item-active' : ''}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <ShoppingBag size={17} className="admin-nav-icon" />
+                    <span>Orders</span>
+                  </div>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${orders.length > 0 ? 'bg-[#C47C5A] text-white' : 'bg-white/10 text-stone-300'}`}>
+                    {orders.length}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { setActiveNav('collections'); setIsMobileSidebarOpen(false); }}
+                  className={`admin-sidebar-nav-item ${activeNav === 'collections' ? 'admin-sidebar-nav-item-active' : ''}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <FolderTree size={17} className="admin-nav-icon" />
+                    <span>Collections</span>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-stone-300">
+                    {collections.length}
+                  </span>
+                </button>
+              </nav>
+
+              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 px-3 mb-2">
+                System & Settings
+              </p>
+              <nav className="space-y-1">
+                <button
+                  type="button"
+                  onClick={() => { setActiveNav('settings'); setIsMobileSidebarOpen(false); }}
+                  className={`admin-sidebar-nav-item ${activeNav === 'settings' ? 'admin-sidebar-nav-item-active' : ''}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Database size={17} className="admin-nav-icon" />
+                    <span>Cloud & Settings</span>
+                  </div>
+                  <span className={`w-2 h-2 rounded-full ${isCloud ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                </button>
+              </nav>
+            </div>
+
+            {/* Mobile Footer */}
+            <div className="pt-6 border-t border-white/10 space-y-4">
+              <button
+                type="button"
+                onClick={() => { onNavigateToStore(); setIsMobileSidebarOpen(false); }}
+                className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-stone-300 hover:text-white text-xs font-semibold transition border border-white/5 cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <ExternalLink size={14} className="text-[#C47C5A]" />
+                  <span>View Live Website</span>
+                </div>
+                <span className="text-[10px] text-stone-400">Store ↗</span>
+              </button>
+
+              <div className="flex items-center justify-between pt-2">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-full bg-[#C47C5A] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                    A
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-white truncate">Store Admin</p>
+                    <p className="text-[10px] text-stone-400 truncate">admin@faneelo.co.uk</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={onLogout}
+                  className="p-2 rounded-lg text-stone-400 hover:text-red-400 hover:bg-red-500/10 transition cursor-pointer"
+                  title="Log Out"
+                >
+                  <LogOut size={16} />
+                </button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      )}
+
+      {/* ================= DESKTOP PERSISTENT SHOPIFY SIDEBAR ================= */}
+      <aside className="admin-desktop-sidebar">
+        <div>
+          {/* Brand Header */}
+          <div className="pb-5 border-b border-white/10 mb-6">
+            <div className="flex items-center justify-between">
+              <span className="font-display text-2xl font-normal tracking-tight text-white">
+                Faneelo<span className="text-[#C47C5A]">.</span>
+              </span>
+              <span className="rounded-full bg-[#C47C5A] text-white px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider">
+                CMS
+              </span>
+            </div>
+            <p className="text-[11px] text-stone-400 mt-1">Luxury Sofa UK Admin</p>
+          </div>
+
+          {/* Database Cloud Status Pill */}
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-xs mb-6">
+            <span className={`w-2 h-2 rounded-full ${isCloud ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+            <span className="text-stone-300 text-[11px] font-medium truncate">
+              {isCloud ? 'Live Supabase Cloud' : 'Local Storage Mode'}
+            </span>
+          </div>
+
+          {/* Nav Group 1: Store Management */}
+          <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 px-3 mb-2">
+            Store Management
+          </p>
+          <nav className="space-y-1 mb-6">
             <button
               type="button"
-              onClick={() => setActiveTab('products')}
-              className={`admin-tab-btn ${
-                activeTab === 'products'
-                  ? 'admin-tab-btn-active'
-                  : 'admin-tab-btn-inactive'
-              }`}
+              onClick={() => setActiveNav('products')}
+              className={`admin-sidebar-nav-item ${activeNav === 'products' ? 'admin-sidebar-nav-item-active' : ''}`}
             >
-              <Layers size={14} />
-              Products Catalog ({products.length})
+              <div className="flex items-center gap-3">
+                <Layers size={17} className="admin-nav-icon" />
+                <span>Products</span>
+              </div>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-stone-300">
+                {products.length}
+              </span>
             </button>
 
             <button
               type="button"
-              onClick={() => setActiveTab('orders')}
-              className={`admin-tab-btn relative ${
-                activeTab === 'orders'
-                  ? 'admin-tab-btn-active'
-                  : 'admin-tab-btn-inactive'
-              }`}
+              onClick={() => setActiveNav('orders')}
+              className={`admin-sidebar-nav-item ${activeNav === 'orders' ? 'admin-sidebar-nav-item-active' : ''}`}
             >
-              <ShoppingBag size={14} />
-              Customer Orders
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                activeTab === 'orders' ? 'bg-[#C47C5A] text-white' : 'bg-[#EAF4E2] text-[#2E7D32]'
-              }`}>
+              <div className="flex items-center gap-3">
+                <ShoppingBag size={17} className="admin-nav-icon" />
+                <span>Orders</span>
+              </div>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${orders.length > 0 ? 'bg-[#C47C5A] text-white' : 'bg-white/10 text-stone-300'}`}>
                 {orders.length}
               </span>
             </button>
-          </div>
 
-          {activeTab === 'orders' && (
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleExportCSV}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-[#D6D3D1] text-xs font-semibold text-[#111111] hover:bg-[#F5F5F4] transition cursor-pointer shadow-2xs"
-              >
-                <Download size={13} /> Export Orders to CSV
-              </button>
-            </div>
-          )}
+            <button
+              type="button"
+              onClick={() => setActiveNav('collections')}
+              className={`admin-sidebar-nav-item ${activeNav === 'collections' ? 'admin-sidebar-nav-item-active' : ''}`}
+            >
+              <div className="flex items-center gap-3">
+                <FolderTree size={17} className="admin-nav-icon" />
+                <span>Collections</span>
+              </div>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-stone-300">
+                {collections.length}
+              </span>
+            </button>
+          </nav>
+
+          {/* Nav Group 2: Settings */}
+          <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 px-3 mb-2">
+            System & Settings
+          </p>
+          <nav className="space-y-1">
+            <button
+              type="button"
+              onClick={() => setActiveNav('settings')}
+              className={`admin-sidebar-nav-item ${activeNav === 'settings' ? 'admin-sidebar-nav-item-active' : ''}`}
+            >
+              <div className="flex items-center gap-3">
+                <Database size={17} className="admin-nav-icon" />
+                <span>Cloud & Settings</span>
+              </div>
+              <span className={`w-2 h-2 rounded-full ${isCloud ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+            </button>
+          </nav>
         </div>
 
-        {activeTab === 'products' ? (
-          <>
+        {/* Sidebar Footer */}
+        <div className="pt-6 border-t border-white/10 space-y-4">
+          <button
+            type="button"
+            onClick={onNavigateToStore}
+            className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-stone-300 hover:text-white text-xs font-semibold transition border border-white/5 cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <ExternalLink size={14} className="text-[#C47C5A]" />
+              <span>View Live Website</span>
+            </div>
+            <span className="text-[10px] text-stone-400">Store ↗</span>
+          </button>
+
+          <div className="flex items-center justify-between pt-2">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-[#C47C5A] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                A
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-white truncate">Store Admin</p>
+                <p className="text-[10px] text-stone-400 truncate">admin@faneelo.co.uk</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onLogout}
+              className="p-2 rounded-lg text-stone-400 hover:text-red-400 hover:bg-red-500/10 transition cursor-pointer"
+              title="Log Out"
+            >
+              <LogOut size={16} />
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* ================= RIGHT WORKSPACE ================= */}
+      <div className="flex-1 min-w-0 flex flex-col pb-20">
+        
+        {/* Top Header Bar */}
+        <header className="sticky top-0 z-20 bg-white border-b border-[#E6E6E6] px-4 sm:px-8 py-4 shadow-2xs">
+          <div className="flex items-center justify-between gap-4">
+            
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                type="button"
+                onClick={() => setIsMobileSidebarOpen(true)}
+                className="admin-mobile-menu-btn p-2 rounded-xl border border-[#D6D3D1] bg-white text-[#111111] hover:bg-[#F5F5F4] transition cursor-pointer"
+                title="Open Sidebar Menu"
+              >
+                <Menu size={18} />
+              </button>
+
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-lg sm:text-xl font-bold text-[#111111] truncate">
+                    {activeNav === 'products' && 'Products Catalog'}
+                    {activeNav === 'orders' && 'Customer Orders'}
+                    {activeNav === 'collections' && 'Collections Management'}
+                    {activeNav === 'settings' && 'Cloud & Database Settings'}
+                  </h1>
+                  <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-[#FAF9F5] border border-[#E6E6E6] text-[10px] font-bold text-[#777777] uppercase">
+                    {activeNav === 'products' && `${products.length} Sofas`}
+                    {activeNav === 'orders' && `${orders.length} Orders`}
+                    {activeNav === 'collections' && `${collections.length} Collections`}
+                    {activeNav === 'settings' && (isCloud ? 'Cloud Synced' : 'Local')}
+                  </span>
+                </div>
+                <p className="text-xs text-[#777777] hidden sm:block truncate mt-0.5">
+                  {activeNav === 'products' && 'Manage handcrafted sofas, variant sizing, fabrics and gallery photos'}
+                  {activeNav === 'orders' && 'Review UK cash on delivery customer orders, dispatch status & contact details'}
+                  {activeNav === 'collections' && 'Group luxury sofas into collections with custom cover images and room styles'}
+                  {activeNav === 'settings' && 'Configure Supabase cloud database keys, live sync & catalog reset'}
+                </p>
+              </div>
+            </div>
+
+            {/* Context Action Buttons */}
+            <div className="flex items-center gap-2 shrink-0">
+              {activeNav === 'products' && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleSeedCatalog}
+                    className="hidden md:inline-flex admin-btn-secondary text-xs"
+                    title="Reset default 12 BritSofa products"
+                  >
+                    <RefreshCw size={13} />
+                    <span>Reset Default</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleOpenAdd}
+                    className="admin-btn-black px-4 sm:px-5 rounded-full text-xs font-semibold"
+                  >
+                    <Plus size={15} />
+                    <span>Add Sofa</span>
+                  </button>
+                </>
+              )}
+
+              {activeNav === 'orders' && (
+                <button
+                  type="button"
+                  onClick={handleExportCSV}
+                  className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl bg-white border border-[#D6D3D1] text-xs font-semibold text-[#111111] hover:bg-[#F5F5F4] transition cursor-pointer shadow-2xs"
+                >
+                  <Download size={13} />
+                  <span className="hidden sm:inline">Export CSV</span>
+                </button>
+              )}
+
+              {activeNav === 'collections' && (
+                <button
+                  type="button"
+                  onClick={handleOpenCollectionsManager}
+                  className="admin-btn-black px-4 sm:px-5 rounded-full text-xs font-semibold"
+                >
+                  <Plus size={15} />
+                  <span>Add Collection</span>
+                </button>
+              )}
+
+              {activeNav === 'settings' && isCloud && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#EAF4E2] text-[#2E7D32] text-xs font-semibold">
+                  <Check size={13} /> Cloud Active
+                </span>
+              )}
+            </div>
+
+          </div>
+        </header>
+
+        {/* Main Content Area */}
+        <main className="max-w-7xl w-full mx-auto px-4 sm:px-8 pt-6 sm:pt-8 flex-1">
+          {activeNav === 'products' && (
+            <div>
             {/* Metric Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
               <div className="bg-white p-5 rounded-2xl border border-[#E6E6E6] shadow-2xs">
@@ -859,10 +1149,12 @@ export default function AdminDashboard({ onLogout, onNavigateToStore }) {
             )}
           </div>
         </div>
-        </>
-      ) : (
-        /* ================= CUSTOMER ORDERS TAB CONTENT ================= */
-        <div>
+      </div>
+    )}
+
+    {/* ================= CUSTOMER ORDERS TAB CONTENT ================= */}
+    {activeNav === 'orders' && (
+      <div>
           {/* Orders Metric Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
             <div className="bg-white p-5 rounded-2xl border border-[#E6E6E6] shadow-2xs">
@@ -1106,7 +1398,338 @@ export default function AdminDashboard({ onLogout, onNavigateToStore }) {
           </div>
         </div>
       )}
+
+      {/* ================= COLLECTIONS MANAGEMENT VIEW ================= */}
+      {activeNav === 'collections' && (
+        <div className="space-y-8">
+          {/* Collections Metrics */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <div className="bg-white p-5 rounded-2xl border border-[#E6E6E6] shadow-2xs">
+              <p className="text-xs text-[#777777] font-medium uppercase tracking-wider mb-1">Total Collections</p>
+              <p className="text-2xl sm:text-3xl font-bold text-[#111111] font-sans">{collections.length}</p>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-[#E6E6E6] shadow-2xs">
+              <p className="text-xs text-[#777777] font-medium uppercase tracking-wider mb-1">Catalog Sofas</p>
+              <p className="text-2xl sm:text-3xl font-bold text-[#111111] font-sans">{products.length}</p>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-[#E6E6E6] shadow-2xs col-span-2 sm:col-span-1">
+              <p className="text-xs text-[#777777] font-medium uppercase tracking-wider mb-1">Featured With Photos</p>
+              <p className="text-2xl sm:text-3xl font-bold text-[#C47C5A] font-sans">
+                {collections.filter(c => c.image).length}
+              </p>
+            </div>
+          </div>
+
+          {/* Quick Create / Edit Collection Card */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E6E6E6] shadow-2xs">
+            <div className="flex items-center justify-between pb-4 border-b border-[#F0ECE5] mb-6">
+              <div>
+                <h3 className="text-base font-bold text-[#111111]">
+                  {editingCollection ? `Edit Collection: ${editingCollection.name}` : 'Create New Collection'}
+                </h3>
+                <p className="text-xs text-[#777777] mt-0.5">
+                  {editingCollection 
+                    ? 'Renaming will cascade across all assigned products automatically' 
+                    : 'Add a new luxury collection category for your sofa showcase'}
+                </p>
+              </div>
+              {editingCollection && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingCollection(null);
+                    setColFormName('');
+                    setColFormDesc('');
+                    setColFormImage('');
+                  }}
+                  className="text-xs font-semibold text-[#777777] hover:text-[#111111] underline cursor-pointer"
+                >
+                  Cancel Edit
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#111111] mb-1.5">
+                  Collection Name *
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Chesterfield, Velvet Luxe, Bouclé..."
+                  value={colFormName}
+                  onChange={(e) => setColFormName(e.target.value)}
+                  className="w-full rounded-xl border border-[#D6D3D1] px-3.5 py-2.5 text-xs focus:outline-none focus:border-black font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#111111] mb-1.5">
+                  Description / Subtitle
+                </label>
+                <input
+                  type="text"
+                  placeholder="Short luxury style tagline..."
+                  value={colFormDesc}
+                  onChange={(e) => setColFormDesc(e.target.value)}
+                  className="w-full rounded-xl border border-[#D6D3D1] px-3.5 py-2.5 text-xs focus:outline-none focus:border-black"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#111111] mb-1.5">
+                  Cover Photo
+                </label>
+                <div className="flex gap-2">
+                  <label className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-white border border-[#D6D3D1] text-xs font-semibold text-[#111111] hover:bg-[#F5F5F4] cursor-pointer transition shrink-0">
+                    <Upload size={13} /> Upload
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleCollectionImageUpload}
+                      className="hidden"
+                    />
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Or paste direct image URL..."
+                    value={colFormImage}
+                    onChange={(e) => setColFormImage(e.target.value)}
+                    className="flex-1 min-w-0 rounded-xl border border-[#D6D3D1] px-3.5 py-2.5 text-xs focus:outline-none focus:border-black"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {colFormImage && (
+              <div className="flex items-center gap-3 mb-5 p-2.5 bg-[#FAF9F5] rounded-xl border border-[#E6E6E6]">
+                <img src={colFormImage} alt="Cover Preview" className="w-12 h-12 rounded-lg object-cover border border-[#E6E6E6]" />
+                <p className="text-xs text-[#555555]">Cover photo preview selected</p>
+              </div>
+            )}
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={handleSaveCollectionForm}
+                className="admin-btn-black px-6 rounded-full text-xs font-semibold"
+              >
+                {editingCollection ? 'Save & Cascade Rename' : '+ Create Collection'}
+              </button>
+            </div>
+          </div>
+
+          {/* Existing Collections Grid */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#777777]">
+                Existing Collections ({collections.length})
+              </h4>
+              <p className="text-xs text-[#777777]">Click edit to change name or photo</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {collections.map((col) => {
+                const count = products.filter(p => (p.collection || '').toLowerCase() === col.name.toLowerCase()).length;
+                return (
+                  <div 
+                    key={col.id || col.name}
+                    className="bg-white rounded-2xl border border-[#E6E6E6] overflow-hidden shadow-2xs hover:shadow-md transition flex flex-col justify-between group"
+                  >
+                    <div className="relative h-44 w-full bg-[#F5F5F4] overflow-hidden">
+                      <img
+                        src={col.image || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80'}
+                        alt={col.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                      />
+                      <div className="absolute top-3 right-3 bg-black/75 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-1 rounded-full">
+                        {count} {count === 1 ? 'sofa' : 'sofas'}
+                      </div>
+                    </div>
+
+                    <div className="p-5 flex-1 flex flex-col justify-between">
+                      <div>
+                        <h4 className="font-bold text-base text-[#111111] mb-1">{col.name}</h4>
+                        <p className="text-xs text-[#777777] line-clamp-2">
+                          {col.description || 'Handcrafted luxury sofa collection category.'}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-4 mt-4 border-t border-[#F0ECE5]">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedCollection(col.name);
+                            setActiveNav('products');
+                          }}
+                          className="text-xs font-semibold text-[#C47C5A] hover:underline flex items-center gap-1 cursor-pointer"
+                        >
+                          <span>View Sofas</span>
+                          <ChevronRight size={13} />
+                        </button>
+
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleEditCollection(col)}
+                            className="p-2 text-[#555555] hover:text-[#111111] hover:bg-[#F5F5F4] rounded-lg transition cursor-pointer"
+                            title="Edit Collection"
+                          >
+                            <Edit2 size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCollectionClick(col)}
+                            className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition cursor-pointer"
+                            title="Delete Collection"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= CLOUD & DATABASE SETTINGS VIEW ================= */}
+      {activeNav === 'settings' && (
+        <div className="max-w-4xl space-y-8">
+          {/* Cloud Sync Status Banner */}
+          <div className={`p-6 rounded-3xl border ${
+            isCloud 
+              ? 'bg-[#EAF4E2]/50 border-[#C8E6C9]' 
+              : 'bg-[#FFFBEB] border-[#FDE68A]'
+          }`}>
+            <div className="flex items-start gap-4">
+              <div className={`p-3 rounded-2xl ${isCloud ? 'bg-[#2E7D32] text-white' : 'bg-[#D97706] text-white'}`}>
+                <Database size={24} />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-bold text-[#111111]">
+                    {isCloud ? 'Live Supabase Cloud Database Connected' : 'Running in Local Catalog Storage Mode'}
+                  </h3>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                    isCloud ? 'bg-[#2E7D32] text-white' : 'bg-[#D97706] text-white'
+                  }`}>
+                    {isCloud ? 'LIVE SYNC' : 'OFFLINE / LOCAL'}
+                  </span>
+                </div>
+                <p className="text-xs text-[#555555] mt-1.5 leading-relaxed">
+                  {isCloud 
+                    ? 'Your sofa catalog, variants, custom collections, and customer orders are automatically synced in real time to your Supabase PostgreSQL cloud database.'
+                    : 'All changes are currently saved locally inside your browser storage. To enable multi-device synchronization, automated cloud backups, and shared staff access, connect your free Supabase database below.'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Supabase Connection Form */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E6E6E6] shadow-2xs">
+            <div className="pb-4 border-b border-[#F0ECE5] mb-6">
+              <h3 className="text-base font-bold text-[#111111] flex items-center gap-2">
+                <Database size={18} /> Supabase Project Configuration
+              </h3>
+              <p className="text-xs text-[#777777] mt-0.5">
+                Enter your Supabase project API URL and public anon key
+              </p>
+            </div>
+
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-1.5">
+                  Supabase Project URL
+                </label>
+                <input
+                  type="text"
+                  placeholder="https://your-project-id.supabase.co"
+                  value={supabaseUrlInput}
+                  onChange={(e) => setSupabaseUrlInput(e.target.value)}
+                  className="w-full rounded-xl border border-[#D6D3D1] px-4 py-2.5 text-xs font-mono focus:outline-none focus:border-black"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-1.5">
+                  Supabase Anon API Key
+                </label>
+                <input
+                  type="password"
+                  placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  value={supabaseKeyInput}
+                  onChange={(e) => setSupabaseKeyInput(e.target.value)}
+                  className="w-full rounded-xl border border-[#D6D3D1] px-4 py-2.5 text-xs font-mono focus:outline-none focus:border-black"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-4 border-t border-[#F0ECE5]">
+              {isCloud ? (
+                <button
+                  type="button"
+                  onClick={handleDisconnectSupabase}
+                  className="px-4 py-2 rounded-full border border-red-200 text-red-600 hover:bg-red-50 text-xs font-semibold transition cursor-pointer"
+                >
+                  Disconnect Cloud
+                </button>
+              ) : <div />}
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (!supabaseUrlInput.trim() || !supabaseKeyInput.trim()) {
+                    alert('Please enter both Supabase URL and Anon Key');
+                    return;
+                  }
+                  updateSupabaseCredentials(supabaseUrlInput, supabaseKeyInput);
+                }}
+                className="admin-btn-black px-6 rounded-full text-xs font-semibold"
+              >
+                Save & Connect Supabase
+              </button>
+            </div>
+          </div>
+
+          {/* Catalog Maintenance & Reset */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E6E6E6] shadow-2xs">
+            <div className="pb-4 border-b border-[#F0ECE5] mb-4">
+              <h3 className="text-base font-bold text-[#111111] flex items-center gap-2">
+                <RefreshCw size={18} /> Catalog Maintenance
+              </h3>
+              <p className="text-xs text-[#777777] mt-0.5">
+                Reset or restore the original 12 luxury sofa designs and collections
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-3">
+              <div>
+                <h4 className="text-sm font-semibold text-[#111111]">Reset Default UK Catalog</h4>
+                <p className="text-xs text-[#777777] mt-0.5">
+                  Restores all 12 default BritSofa luxury products (Lilly, Dino, Ashwin, etc.) with original variants and prices.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleSeedCatalog}
+                className="admin-btn-secondary text-xs shrink-0"
+              >
+                <RefreshCw size={14} />
+                <span>Reset Default Catalog</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       </main>
+      </div>
 
       {/* ================= ORDER DETAILS MODAL ================= */}
       {selectedOrderDetails && (

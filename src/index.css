@@ -308,6 +308,110 @@
   border-color: #A8A29E !important;
 }
 
+/* Shopify-Style Sidebar Styling */
+.admin-sidebar {
+  background-color: #111111 !important;
+  color: #ffffff !important;
+  border-right: 1px solid #222222 !important;
+}
+.admin-sidebar-nav-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  padding: 10px 14px !important;
+  border-radius: 12px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  text-align: left !important;
+  color: #999999 !important;
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
+}
+.admin-sidebar-nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  color: #ffffff !important;
+}
+.admin-sidebar-nav-item-active {
+  background-color: rgba(196, 124, 90, 0.16) !important;
+  color: #ffffff !important;
+  border-color: rgba(196, 124, 90, 0.35) !important;
+  font-weight: 600 !important;
+}
+.admin-sidebar-nav-item-active .admin-nav-icon {
+  color: #C47C5A !important;
+}
+
+/* Explicit Responsive Sidebar Layout */
+.admin-layout-container {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 100vh !important;
+  background-color: #F8F7F4 !important;
+  color: #111111 !important;
+}
+
+@media (min-width: 1024px) {
+  .admin-layout-container {
+    flex-direction: row !important;
+  }
+}
+
+.admin-desktop-sidebar {
+  display: none !important;
+  width: 260px !important;
+  min-width: 260px !important;
+  height: 100vh !important;
+  position: sticky !important;
+  top: 0 !important;
+  background-color: #111111 !important;
+  color: #ffffff !important;
+  border-right: 1px solid #222222 !important;
+  padding: 24px 20px !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  overflow-y: auto !important;
+  z-index: 30 !important;
+  box-sizing: border-box !important;
+}
+
+@media (min-width: 1024px) {
+  .admin-desktop-sidebar {
+    display: flex !important;
+  }
+  .admin-mobile-menu-btn {
+    display: none !important;
+  }
+}
+
+.admin-mobile-drawer-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  z-index: 50 !important;
+  display: flex !important;
+}
+
+.admin-mobile-drawer-content {
+  position: relative !important;
+  width: 280px !important;
+  max-width: 85vw !important;
+  height: 100% !important;
+  background-color: #111111 !important;
+  color: #ffffff !important;
+  padding: 24px 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  overflow-y: auto !important;
+  z-index: 51 !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
+  box-sizing: border-box !important;
+}
+
+
 /* Admin Login Inputs */
 .admin-login-input {
   width: 100% !important;
