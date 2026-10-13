@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  ChevronRight, Check, ChevronDown, 
-  ShoppingBag, Star, Truck, Shield
-} from 'lucide-react';
-import { STORE_INFO, REVIEWS } from '../data/products';
+import { ChevronRight, ChevronDown } from 'lucide-react';
+import { REVIEWS, FALLBACK_IMAGE } from '../data/products';
 import ProductCard from './ProductCard';
 
 export function getCleanVariantName(v) {
@@ -47,13 +44,11 @@ export default function ProductPage({
   onSelectProduct,
   onAddToCart,
   onCheckout,
-  onOpenAbout,
-  onOpenFaq
+  _onOpenAbout,
+  _onOpenFaq
 }) {
-  if (!product) return null;
-
-  const variants = product.variants && product.variants.length > 0 ? product.variants : [
-    { type: 'standard', label: 'Standard Suite', price: product.price, imageUrl: product.imageUrl }
+  const variants = product?.variants && product.variants.length > 0 ? product.variants : [
+    { type: 'standard', label: 'Standard Suite', price: product?.price || 250, imageUrl: product?.imageUrl || '' }
   ];
 
   const getStartingVariant = () => {
@@ -66,7 +61,7 @@ export default function ProductPage({
 
   const startingVariant = getStartingVariant();
   const [selectedVariant, setSelectedVariant] = useState(startingVariant);
-  const [selectedImage, setSelectedImage] = useState(startingVariant.imageUrl || product.imageUrl);
+  const [selectedImage, setSelectedImage] = useState(startingVariant?.imageUrl || product?.imageUrl || '');
   const [selectedFabric, setSelectedFabric] = useState('Same as Image');
   const [selectedColor, setSelectedColor] = useState('Same as Image');
   const [cornerFacing, setCornerFacing] = useState('Left Hand Facing (LHF)');
@@ -75,6 +70,7 @@ export default function ProductPage({
 
   // Scroll to top and reset state on product switch or initialVariant update
   useEffect(() => {
+    if (!product) return;
     window.scrollTo({ top: 0, behavior: 'smooth' });
     const cur = initialVariant 
       ? (variants.find(v => v.type === initialVariant.type || v.label === initialVariant.label) || variants[0])
@@ -85,7 +81,9 @@ export default function ProductPage({
     setSelectedColor('Same as Image');
     setQuantity(1);
     setActiveTab('description');
-  }, [product.id, initialVariant]);
+  }, [product, initialVariant]);
+
+  if (!product) return null;
 
   const handleVariantChange = (v) => {
     setSelectedVariant(v);
@@ -182,6 +180,10 @@ export default function ProductPage({
               <img 
                 src={selectedImage} 
                 alt={product.name}
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = FALLBACK_IMAGE;
+                }}
                 className="h-full w-full object-cover"
               />
             </div>
@@ -203,6 +205,10 @@ export default function ProductPage({
                     <img 
                       src={img} 
                       alt={`View ${i + 1}`} 
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = FALLBACK_IMAGE;
+                      }}
                       className="h-full w-full object-cover" 
                     />
                   </button>

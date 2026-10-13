@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { Lock, Mail, ArrowRight, ShieldCheck, ArrowLeft } from 'lucide-react';
-import { login, getDemoCredentials } from '../../services/authService';
+import { login } from '../../services/authService';
 
 export default function AdminLogin({ onLoginSuccess, onBackToStore }) {
-  const defaultCreds = getDemoCredentials();
-  const [email, setEmail] = useState(defaultCreds.email);
-  const [password, setPassword] = useState(defaultCreds.password);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -110,11 +109,11 @@ export default function AdminLogin({ onLoginSuccess, onBackToStore }) {
             </div>
           </form>
 
-          {/* Quick info for client */}
+          {/* Security notice */}
           <div className="mt-6 pt-5 border-t border-[#F0ECE5] text-center">
-            <div className="inline-flex items-center gap-1.5 text-[11px] text-[#2E7D32] bg-[#EAF4E2] px-3 py-1 rounded-full font-medium">
-              <ShieldCheck size={13} />
-              Default Login: {defaultCreds.email} / {defaultCreds.password}
+            <div className="inline-flex items-center gap-1.5 text-[11px] text-[#555555] bg-[#F5F5F4] px-3 py-1.5 rounded-full font-medium">
+              <ShieldCheck size={13} className="text-[#10B981]" />
+              Authorized store management access only
             </div>
           </div>
         </div>

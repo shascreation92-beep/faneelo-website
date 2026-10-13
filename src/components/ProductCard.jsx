@@ -1,4 +1,5 @@
 import React from 'react';
+import { FALLBACK_IMAGE } from '../data/products';
 
 export default function ProductCard({ 
   product, 
@@ -50,6 +51,10 @@ export default function ProductCard({
           src={image}
           alt={title}
           loading="lazy"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = FALLBACK_IMAGE;
+          }}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 

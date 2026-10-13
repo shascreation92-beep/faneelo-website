@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { X, CheckCircle2, Truck, ShieldCheck, Banknote, ArrowRight, MessageCircle } from 'lucide-react';
+import { X, CheckCircle2, Banknote, ArrowRight, MessageCircle } from 'lucide-react';
 import { STORE_INFO } from '../data/products';
 
 export default function CheckoutModal({ isOpen, onClose, items, onOrderSuccess }) {
-  if (!isOpen) return null;
-
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
@@ -17,6 +15,8 @@ export default function CheckoutModal({ isOpen, onClose, items, onOrderSuccess }
   });
 
   const [submittedOrder, setSubmittedOrder] = useState(null);
+
+  if (!isOpen) return null;
 
   const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
@@ -31,10 +31,19 @@ export default function CheckoutModal({ isOpen, onClose, items, onOrderSuccess }
     const newOrder = {
       orderId,
       date: new Date().toLocaleDateString('en-GB'),
+      timestamp: new Date().toISOString(),
       items,
       totalAmount,
       customer: formData
     };
+
+    // Persist order to localStorage to prevent data loss
+    try {
+      const existingOrders = JSON.parse(localStorage.getItem('faneelo_orders_v1') || '[]');
+      localStorage.setItem('faneelo_orders_v1', JSON.stringify([newOrder, ...existingOrders]));
+    } catch (err) {
+      console.warn('Could not save order locally:', err);
+    }
 
     setSubmittedOrder(newOrder);
     onOrderSuccess();

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { ChevronRight } from 'lucide-react';
-import { PRODUCTS, CATEGORIES } from '../data/products';
+import { PRODUCTS } from '../data/products';
 import ProductCard from './ProductCard';
 
 export default function CategoryPage({
@@ -111,7 +111,7 @@ export default function CategoryPage({
       if (sortOption === 'best-selling') return (b.soldCount || 0) - (a.soldCount || 0);
       return (b.soldCount || 0) - (a.soldCount || 0);
     });
-  }, [searchQuery, targetSize, selectedCollection, minPrice, maxPrice, sortOption]);
+  }, [products, searchQuery, targetSize, selectedCollection, minPrice, maxPrice, sortOption]);
 
   const handleSizeChange = (newSize) => {
     setSelectedSize(newSize);

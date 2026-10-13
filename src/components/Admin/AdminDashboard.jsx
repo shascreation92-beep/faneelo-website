@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Plus, Edit2, Trash2, Search, ExternalLink, LogOut, 
-  Database, RefreshCw, Upload, X, Check, AlertCircle, Layers,
-  DollarSign, Package, Image as ImageIcon, Settings, ChevronDown,
-  ChevronLeft, ChevronRight, Star, FolderTree, Palette, Tag
+  Database, RefreshCw, Upload, X, Check, Layers,
+  Image as ImageIcon, Settings, ChevronDown,
+  ChevronLeft, ChevronRight, Star, FolderTree, Palette
 } from 'lucide-react';
 import { 
   getAllProducts, saveProduct, deleteProduct, 

@@ -19,7 +19,7 @@ import AdminDashboard from './components/Admin/AdminDashboard';
 import { getAllProducts } from './services/productService';
 import { isAuthenticated, logout } from './services/authService';
 
-import { PRODUCTS, STORE_INFO } from './data/products';
+import { PRODUCTS } from './data/products';
 
 export default function App() {
   const [productsList, setProductsList] = useState(PRODUCTS);
@@ -205,11 +205,6 @@ export default function App() {
     }
     setCurrentPage({ name: 'admin' });
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const scrollToShop = () => {
-    const el = document.getElementById('shop');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
   // Filtered Products for Homepage

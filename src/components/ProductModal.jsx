@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Check, Star, Truck, Shield, Banknote, MessageCircle, ShoppingBag, ChevronDown } from 'lucide-react';
-import { STORE_INFO } from '../data/products';
+import { STORE_INFO, FALLBACK_IMAGE } from '../data/products';
 
 export function getCleanVariantName(v) {
   if (!v) return 'Standard Suite';
@@ -36,10 +36,9 @@ export function getCleanVariantName(v) {
 }
 
 export default function ProductModal({ product, onClose, onAddToCart, onCheckout }) {
-  if (!product) return null;
-
   // Body scroll lock & ESC key listener
   useEffect(() => {
+    if (!product) return;
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
@@ -52,18 +51,20 @@ export default function ProductModal({ product, onClose, onAddToCart, onCheckout
       document.body.style.overflow = originalOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [onClose]);
+  }, [product, onClose]);
 
-  const variants = product.variants && product.variants.length > 0 ? product.variants : [
-    { type: 'standard', label: 'Standard Suite', price: product.price, imageUrl: product.imageUrl }
+  const variants = product?.variants && product.variants.length > 0 ? product.variants : [
+    { type: 'standard', label: 'Standard Suite', price: product?.price || 250, imageUrl: product?.imageUrl || '' }
   ];
 
   const [selectedVariant, setSelectedVariant] = useState(variants[0]);
-  const [selectedImage, setSelectedImage] = useState(selectedVariant.imageUrl || product.imageUrl);
+  const [selectedImage, setSelectedImage] = useState(selectedVariant?.imageUrl || product?.imageUrl || '');
   const [selectedFabric, setSelectedFabric] = useState('Same as Image');
   const [selectedColor, setSelectedColor] = useState('Same as Image');
   const [cornerFacing, setCornerFacing] = useState('Left Hand Facing (LHF)');
   const [quantity, setQuantity] = useState(1);
+
+  if (!product) return null;
 
   // When variant changes, update preview image if variant provides one
   const handleVariantChange = (v) => {
@@ -153,6 +154,10 @@ export default function ProductModal({ product, onClose, onAddToCart, onCheckout
               <img 
                 src={selectedImage} 
                 alt={product.name}
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = FALLBACK_IMAGE;
+                }}
                 className="h-full w-full object-cover transition-transform duration-300"
               />
 
@@ -198,6 +203,10 @@ export default function ProductModal({ product, onClose, onAddToCart, onCheckout
                     <img 
                       src={img} 
                       alt={`View ${i + 1}`} 
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = FALLBACK_IMAGE;
+                      }}
                       style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} 
                     />
                   </button>

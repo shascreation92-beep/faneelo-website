@@ -2,9 +2,11 @@ import rawData from './products.json';
 
 const IMAGE_BASE_URL = 'https://backend.britsofa.co.uk';
 
+export const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1000&q=80';
+
 export function formatImageUrl(url) {
   if (!url) {
-    return 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1000&q=80';
+    return FALLBACK_IMAGE;
   }
   if (url.startsWith('http://') || url.startsWith('https://')) {
     return url;
