@@ -262,6 +262,19 @@ export default function AdminDashboard({ onLogout, onNavigateToStore }) {
     }
   };
 
+  const handleToggleProductStock = async (prod) => {
+    const newStatus = prod.inStock === false;
+    const updated = { ...prod, inStock: newStatus };
+    try {
+      await saveProduct(updated);
+      notify(`"${prod.name}" marked as ${newStatus ? 'In Stock' : 'Out of Stock'}`);
+      loadData(false);
+    } catch (e) {
+      console.error(e);
+      notify('Failed to update stock status', 'error');
+    }
+  };
+
   const handleSeedCatalog = async () => {
     if (!window.confirm('Reset/seed initial BritSofa matching catalog (12 products)?')) return;
     setLoading(true);
@@ -1017,16 +1030,16 @@ export default function AdminDashboard({ onLogout, onNavigateToStore }) {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-[#333333]">
+              <table className="w-full text-left text-xs text-[#333333] min-w-[880px]">
                 <thead className="bg-[#FAF9F5] text-[11px] font-bold uppercase tracking-wider text-[#777777] border-b border-[#E6E6E6]">
                   <tr>
-                    <th className="py-3.5 px-4">Product</th>
-                    <th className="py-3.5 px-4">Collection</th>
-                    <th className="py-3.5 px-4">Starting Price</th>
-                    <th className="py-3.5 px-4">Variations</th>
-                    <th className="py-3.5 px-4">Photos</th>
-                    <th className="py-3.5 px-4">Status</th>
-                    <th className="py-3.5 px-4 text-right">Actions</th>
+                    <th className="py-3.5 px-4 min-w-[240px]">Product</th>
+                    <th className="py-3.5 px-4 whitespace-nowrap min-w-[120px]">Collection</th>
+                    <th className="py-3.5 px-4 whitespace-nowrap min-w-[110px]">Starting Price</th>
+                    <th className="py-3.5 px-4 min-w-[190px]">Variations</th>
+                    <th className="py-3.5 px-4 whitespace-nowrap min-w-[120px]">Photos</th>
+                    <th className="py-3.5 px-4 whitespace-nowrap min-w-[130px]">Status</th>
+                    <th className="py-3.5 px-4 whitespace-nowrap text-right min-w-[90px]">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#F0ECE5]">
@@ -1034,54 +1047,73 @@ export default function AdminDashboard({ onLogout, onNavigateToStore }) {
                     const photosCount = (p.images && p.images.length > 0) ? p.images.length : (p.imageUrl ? 1 : 0);
                     return (
                       <tr key={p.id} className="hover:bg-[#FAF9F5] transition-colors">
-                        <td className="py-3.5 px-4">
+                        <td className="py-3.5 px-4 min-w-[240px]">
                           <div className="flex items-center gap-3">
                             <img
                               src={p.imageUrl}
                               alt={p.name}
-                              className="w-12 h-12 rounded-xl object-cover border border-[#E6E6E6] bg-[#F5F5F4]"
+                              className="w-12 h-12 rounded-xl object-cover border border-[#E6E6E6] bg-[#F5F5F4] shrink-0"
                             />
-                            <div>
+                            <div className="min-w-0">
                               <p className="font-semibold text-sm text-[#111111] line-clamp-1">{p.name}</p>
                               <p className="text-[11px] text-[#777777]">{p.variants?.length || 0} size options configured</p>
                             </div>
                           </div>
                         </td>
-                        <td className="py-3.5 px-4 font-medium text-[#555555]">
-                          <span className="rounded-full bg-[#F0ECE5] px-2.5 py-1 text-[11px] font-semibold text-[#111111]">
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <span className="inline-block whitespace-nowrap rounded-full bg-[#FAF9F5] border border-[#E6E6E6] px-2.5 py-1 text-[11px] font-semibold text-[#111111]">
                             {p.collection || 'Standard'}
                           </span>
                         </td>
-                        <td className="py-3.5 px-4 font-bold text-sm text-[#111111] tabular-nums">
+                        <td className="py-3.5 px-4 whitespace-nowrap font-bold text-sm text-[#111111] tabular-nums">
                           £{Number(p.price || 250).toLocaleString('en-GB')}
                         </td>
-                        <td className="py-3.5 px-4 text-[#555555]">
+                        <td className="py-3.5 px-4">
                           <div className="flex flex-wrap gap-1 max-w-xs">
                             {(p.variants || []).slice(0, 4).map((v, i) => (
-                              <span key={i} className="text-[10px] bg-[#F5F5F4] px-1.5 py-0.5 rounded text-[#666666]">
+                              <span key={i} className="text-[10px] whitespace-nowrap bg-[#F5F5F4] border border-[#E6E6E6]/60 px-1.5 py-0.5 rounded text-[#666666]">
                                 {v.label || v.type}
                               </span>
                             ))}
                             {(p.variants?.length || 0) > 4 && (
-                              <span className="text-[10px] text-[#888888] self-center">
+                              <span className="text-[10px] whitespace-nowrap text-[#888888] self-center">
                                 +{p.variants.length - 4} more
                               </span>
                             )}
                           </div>
                         </td>
-                        <td className="py-3.5 px-4 font-semibold text-[11px] text-[#666666]">
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F5F5F4] border border-[#E6E6E6]">
-                            <ImageIcon size={11} /> {photosCount} {photosCount === 1 ? 'img' : 'imgs'}
-                          </span>
+
+                        {/* Enhanced Photos Column UI/UX */}
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEdit(p)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAF9F5] hover:bg-[#F0ECE5] border border-[#E6E6E6] text-[11px] font-semibold text-[#444444] transition cursor-pointer shadow-2xs group whitespace-nowrap"
+                            title="Click to view & manage product gallery photos"
+                          >
+                            <ImageIcon size={13} className="text-[#C47C5A] group-hover:scale-110 transition-transform" />
+                            <span>{photosCount} {photosCount === 1 ? 'photo' : 'photos'}</span>
+                          </button>
                         </td>
-                        <td className="py-3.5 px-4">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                            p.inStock !== false ? 'bg-[#EAF4E2] text-[#2E7D32]' : 'bg-red-50 text-red-700'
-                          }`}>
-                            {p.inStock !== false ? 'In Stock' : 'Out of Stock'}
-                          </span>
+
+                        {/* Enhanced Status Column UI/UX with Shopify-style indicator dot & 1-click toggle */}
+                        <td className="py-3.5 px-4 whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleProductStock(p)}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold border transition cursor-pointer shadow-2xs whitespace-nowrap ${
+                              p.inStock !== false 
+                                ? 'bg-[#EAF4E2] text-[#2E7D32] border-[#C8E6C9] hover:bg-[#DDF0D3]' 
+                                : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+                            }`}
+                            title={`Click to mark as ${p.inStock !== false ? 'Out of Stock' : 'In Stock'}`}
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${p.inStock !== false ? 'bg-[#2E7D32]' : 'bg-red-500'}`} />
+                            <span>{p.inStock !== false ? 'In Stock' : 'Out of Stock'}</span>
+                          </button>
                         </td>
-                        <td className="py-3.5 px-4 text-right">
+
+                        <td className="py-3.5 px-4 whitespace-nowrap text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               type="button"
@@ -1268,16 +1300,16 @@ export default function AdminDashboard({ onLogout, onNavigateToStore }) {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-[#333333]">
+                <table className="w-full text-left text-xs text-[#333333] min-w-[920px]">
                   <thead className="bg-[#FAF9F5] text-[11px] font-bold uppercase tracking-wider text-[#777777] border-b border-[#E6E6E6]">
                     <tr>
-                      <th className="py-3.5 px-4">Order Ref / Date</th>
-                      <th className="py-3.5 px-4">Customer</th>
-                      <th className="py-3.5 px-4">Delivery Location</th>
-                      <th className="py-3.5 px-4">Items Summary</th>
-                      <th className="py-3.5 px-4">Total Amount</th>
-                      <th className="py-3.5 px-4">Status</th>
-                      <th className="py-3.5 px-4 text-right">Actions</th>
+                      <th className="py-3.5 px-4 whitespace-nowrap min-w-[140px]">Order Ref / Date</th>
+                      <th className="py-3.5 px-4 min-w-[180px]">Customer</th>
+                      <th className="py-3.5 px-4 min-w-[180px]">Delivery Location</th>
+                      <th className="py-3.5 px-4 min-w-[200px]">Items Summary</th>
+                      <th className="py-3.5 px-4 whitespace-nowrap min-w-[120px]">Total Amount</th>
+                      <th className="py-3.5 px-4 whitespace-nowrap min-w-[170px]">Status</th>
+                      <th className="py-3.5 px-4 whitespace-nowrap text-right min-w-[90px]">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#F0ECE5]">
