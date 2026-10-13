@@ -4,6 +4,7 @@ import Hero from './components/Hero';
 import CategoriesGrid from './components/CategoriesGrid';
 import ProductCard from './components/ProductCard';
 import ProductPage from './components/ProductPage';
+import CategoryPage from './components/CategoryPage';
 import CartDrawer from './components/CartDrawer';
 import CheckoutModal from './components/CheckoutModal';
 import TrustBadges from './components/TrustBadges';
@@ -19,7 +20,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState('featured');
 
-  // Page routing state (1:1 dedicated product page matching BritSofa)
+  // Page routing state (1:1 dedicated product page and category page matching BritSofa)
   const [currentPage, setCurrentPage] = useState(() => {
     try {
       const path = window.location.pathname;
@@ -28,10 +29,15 @@ export default function App() {
         const found = PRODUCTS.find((p) => p.slug === slug || p.id === slug);
         if (found) return { name: 'product', product: found };
       }
+      if (path.startsWith('/collections') || path.startsWith('/category') || path.startsWith('/shop')) {
+        const params = new URLSearchParams(window.location.search);
+        const size = params.get('size') || params.get('category') || 'all';
+        return { name: 'category', categoryId: size };
+      }
     } catch (e) {
       console.error(e);
     }
-    return { name: 'home', product: null };
+    return { name: 'home', product: null, categoryId: 'all' };
   });
 
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -52,7 +58,14 @@ export default function App() {
           return;
         }
       }
-      setCurrentPage({ name: 'home', product: null });
+      if (path.startsWith('/collections') || path.startsWith('/category') || path.startsWith('/shop')) {
+        const params = new URLSearchParams(window.location.search);
+        const size = params.get('size') || params.get('category') || 'all';
+        setCurrentPage({ name: 'category', categoryId: size });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      setCurrentPage({ name: 'home', product: null, categoryId: 'all' });
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -128,8 +141,21 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleOpenCategory = (catId = 'all') => {
+    setSelectedCategory(catId);
+    setCurrentPage({ name: 'category', categoryId: catId });
+    try {
+      const url = catId && catId !== 'all' ? `/collections?size=${catId}` : '/collections';
+      window.history.pushState({ categoryId: catId }, '', url);
+    } catch (e) {
+      console.error(e);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleNavigateHome = () => {
-    setCurrentPage({ name: 'home', product: null });
+    setSelectedCategory('all');
+    setCurrentPage({ name: 'home', product: null, categoryId: 'all' });
     try {
       window.history.pushState(null, '', '/');
     } catch (e) {
@@ -141,21 +167,6 @@ export default function App() {
   const scrollToShop = () => {
     const el = document.getElementById('shop');
     if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const handleSelectCategory = (cat) => {
-    setSelectedCategory(cat);
-    if (currentPage.name !== 'home') {
-      setCurrentPage({ name: 'home', product: null });
-      try {
-        window.history.pushState(null, '', '/');
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    setTimeout(() => {
-      scrollToShop();
-    }, 100);
   };
 
   // Filtered Products for Homepage
@@ -199,12 +210,12 @@ export default function App() {
         cartCount={cartCount}
         onOpenCart={() => setIsCartOpen(true)}
         onNavigateHome={handleNavigateHome}
-        onSelectCategory={handleSelectCategory}
+        onSelectCategory={handleOpenCategory}
         onOpenAbout={() => setIsAboutOpen(true)}
         onOpenFaq={() => setIsFaqOpen(true)}
       />
 
-      {/* 2. Main Page Content (Product Page or Homepage) */}
+      {/* 2. Main Page Content (Product Page, Category Page, or Homepage) */}
       {currentPage.name === 'product' && currentPage.product ? (
         /* Dedicated Product Page (Exact BritSofa Layout with Suggested Products) */
         <ProductPage
@@ -221,19 +232,27 @@ export default function App() {
           onOpenAbout={() => setIsAboutOpen(true)}
           onOpenFaq={() => setIsFaqOpen(true)}
         />
+      ) : currentPage.name === 'category' ? (
+        /* Dedicated Category / Collections Page (Exact BritSofa Layout with Filters) */
+        <CategoryPage
+          initialCategory={currentPage.categoryId}
+          onBack={handleNavigateHome}
+          onSelectProduct={handleOpenProduct}
+          onNavigateCategory={handleOpenCategory}
+        />
       ) : (
         /* Homepage */
         <>
           {/* Hero Section */}
           <Hero
-            onExploreClick={scrollToShop}
-            onCornerClick={() => handleSelectCategory('corner-sofa')}
+            onExploreClick={() => handleOpenCategory('all')}
+            onCornerClick={() => handleOpenCategory('corner-sofa')}
           />
 
           {/* Shop by Category Grid */}
           <CategoriesGrid
             selectedCategory={selectedCategory}
-            onSelectCategory={handleSelectCategory}
+            onSelectCategory={handleOpenCategory}
           />
 
           {/* Bestsellers Section matching BritSofa #shop */}
@@ -253,16 +272,14 @@ export default function App() {
                   </p>
                 </div>
 
-                {/* Quick Filter pill reset */}
-                {selectedCategory !== 'all' && (
-                  <button
-                    type="button"
-                    onClick={() => setSelectedCategory('all')}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-[#1A1A1A]/20 bg-white px-4 py-2 text-xs font-semibold text-[#1A1A1A] hover:bg-[#F5F5F4] transition-all cursor-pointer self-start md:self-auto"
-                  >
-                    Showing {selectedCategory.replace('-', ' ')} ✕ Clear
-                  </button>
-                )}
+                {/* View All Collections Button */}
+                <button
+                  type="button"
+                  onClick={() => handleOpenCategory('all')}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#1A1A1A] bg-[#1A1A1A] px-5 py-2.5 text-xs font-semibold text-white hover:bg-black transition-all cursor-pointer self-start md:self-auto"
+                >
+                  View All Collections →
+                </button>
               </div>
 
               {/* 4-Column Product Grid matching BritSofa */}
@@ -279,13 +296,13 @@ export default function App() {
           </section>
 
           {/* Trustpilot, 4 Features & Customer Voices */}
-          <TrustBadges onShopClick={scrollToShop} />
+          <TrustBadges onShopClick={() => handleOpenCategory('all')} />
         </>
       )}
 
       {/* 3. Global Footer */}
       <Footer
-        onSelectCategory={handleSelectCategory}
+        onSelectCategory={handleOpenCategory}
         onOpenAbout={() => setIsAboutOpen(true)}
         onOpenFaq={() => setIsFaqOpen(true)}
       />
