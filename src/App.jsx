@@ -13,17 +13,45 @@ import FaqModal from './components/FaqModal';
 import WhatsAppButton from './components/WhatsAppButton';
 import Footer from './components/Footer';
 
+// Admin CMS Components & Services
+import AdminLogin from './components/Admin/AdminLogin';
+import AdminDashboard from './components/Admin/AdminDashboard';
+import { getAllProducts } from './services/productService';
+import { isAuthenticated, logout } from './services/authService';
+
 import { PRODUCTS, STORE_INFO } from './data/products';
 
 export default function App() {
+  const [productsList, setProductsList] = useState(PRODUCTS);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => isAuthenticated());
+
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState('featured');
 
-  // Page routing state (1:1 dedicated product page and category page matching BritSofa)
+  // Load live catalog products from Supabase / localStorage on mount
+  const refreshCatalog = async () => {
+    try {
+      const data = await getAllProducts();
+      if (data && data.length > 0) {
+        setProductsList(data);
+      }
+    } catch (e) {
+      console.error('Failed to load live catalog:', e);
+    }
+  };
+
+  useEffect(() => {
+    refreshCatalog();
+  }, []);
+
+  // Page routing state (1:1 dedicated product page, category page, and admin CMS)
   const [currentPage, setCurrentPage] = useState(() => {
     try {
       const path = window.location.pathname;
+      if (path.startsWith('/admin')) {
+        return { name: 'admin' };
+      }
       if (path.startsWith('/products/') || path.startsWith('/product/')) {
         const slug = path.replace(/^\/products?\//, '').replace(/\/$/, '');
         const found = PRODUCTS.find((p) => p.slug === slug || p.id === slug);
@@ -49,9 +77,14 @@ export default function App() {
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
+      if (path.startsWith('/admin')) {
+        setCurrentPage({ name: 'admin' });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
       if (path.startsWith('/products/') || path.startsWith('/product/')) {
         const slug = path.replace(/^\/products?\//, '').replace(/\/$/, '');
-        const found = PRODUCTS.find((p) => p.slug === slug || p.id === slug);
+        const found = productsList.find((p) => p.slug === slug || p.id === slug) || PRODUCTS.find((p) => p.slug === slug || p.id === slug);
         if (found) {
           setCurrentPage({ name: 'product', product: found });
           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -71,7 +104,7 @@ export default function App() {
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [productsList]);
 
   // Cart storage
   const [cart, setCart] = useState(() => {
@@ -164,6 +197,16 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleOpenAdmin = () => {
+    try {
+      window.history.pushState({ page: 'admin' }, '', '/admin');
+    } catch (e) {
+      console.error(e);
+    }
+    setCurrentPage({ name: 'admin' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const scrollToShop = () => {
     const el = document.getElementById('shop');
     if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -171,7 +214,7 @@ export default function App() {
 
   // Filtered Products for Homepage
   const filteredProducts = useMemo(() => {
-    return PRODUCTS.filter((p) => {
+    return productsList.filter((p) => {
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchesName = p.name.toLowerCase().includes(q);
@@ -201,7 +244,28 @@ export default function App() {
       if (sortOption === 'price-desc') return (b.price || 0) - (a.price || 0);
       return (b.soldCount || 0) - (a.soldCount || 0);
     });
-  }, [searchQuery, selectedCategory, sortOption]);
+  }, [productsList, searchQuery, selectedCategory, sortOption]);
+
+  // If Admin Page is requested, render full-screen Admin CMS
+  if (currentPage.name === 'admin') {
+    return isAdminLoggedIn ? (
+      <AdminDashboard
+        onLogout={async () => {
+          await logout();
+          setIsAdminLoggedIn(false);
+        }}
+        onNavigateToStore={handleNavigateHome}
+      />
+    ) : (
+      <AdminLogin
+        onLoginSuccess={() => {
+          setIsAdminLoggedIn(true);
+          refreshCatalog();
+        }}
+        onBackToStore={handleNavigateHome}
+      />
+    );
+  }
 
   return (
     <div className="min-h-full bg-[#F5F5F4] text-[#0A0A0A] font-sans">
@@ -221,7 +285,7 @@ export default function App() {
         <ProductPage
           product={currentPage.product}
           initialVariant={currentPage.initialVariant}
-          allProducts={PRODUCTS}
+          allProducts={productsList}
           onBack={handleNavigateHome}
           onSelectProduct={handleOpenProduct}
           onAddToCart={handleAddToCart}
@@ -237,6 +301,7 @@ export default function App() {
         /* Dedicated Category / Collections Page (Exact BritSofa Layout with Filters) */
         <CategoryPage
           initialCategory={currentPage.categoryId}
+          products={productsList}
           onBack={handleNavigateHome}
           onSelectProduct={handleOpenProduct}
           onAddToCart={handleAddToCart}
@@ -307,6 +372,7 @@ export default function App() {
         onSelectCategory={handleOpenCategory}
         onOpenAbout={() => setIsAboutOpen(true)}
         onOpenFaq={() => setIsFaqOpen(true)}
+        onOpenAdmin={handleOpenAdmin}
       />
 
       {/* 4. Floating WhatsApp Button matching BritSofa */}

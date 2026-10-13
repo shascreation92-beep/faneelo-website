@@ -1,7 +1,7 @@
 import React from 'react';
 import { STORE_INFO } from '../data/products';
 
-export default function Footer({ onSelectCategory, onOpenAbout, onOpenFaq }) {
+export default function Footer({ onSelectCategory, onOpenAbout, onOpenFaq, onOpenAdmin }) {
   return (
     <footer className="mt-20 border-t border-[#E7E5E4] bg-gradient-to-b from-[#1C1C1C] to-[#171717] text-white">
       <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
@@ -209,6 +209,9 @@ export default function Footer({ onSelectCategory, onOpenAbout, onOpenFaq }) {
             </button>
             <button type="button" onClick={onOpenFaq} className="hover:text-white transition-colors bg-transparent border-0 cursor-pointer text-white/50 p-0 text-xs">
               Cookie Policy
+            </button>
+            <button type="button" onClick={onOpenAdmin} className="hover:text-white transition-colors bg-transparent border-0 cursor-pointer text-white/40 hover:text-white/80 p-0 text-xs">
+              Store Admin
             </button>
           </div>
         </div>

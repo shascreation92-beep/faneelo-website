@@ -5,6 +5,7 @@ import ProductCard from './ProductCard';
 
 export default function CategoryPage({
   initialCategory = 'all',
+  products = PRODUCTS,
   onBack,
   onSelectProduct,
   onAddToCart,
@@ -35,14 +36,14 @@ export default function CategoryPage({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [initialCategory]);
 
-  // Extract unique collections from PRODUCTS
+  // Extract unique collections from products
   const collectionsList = useMemo(() => {
     const set = new Set();
-    PRODUCTS.forEach((p) => {
+    products.forEach((p) => {
       if (p.collection) set.add(p.collection);
     });
     return Array.from(set);
-  }, []);
+  }, [products]);
 
   const targetSize = selectedSize !== 'all' ? selectedSize : selectedCategory !== 'all' ? selectedCategory : 'all';
 
@@ -50,7 +51,7 @@ export default function CategoryPage({
   const filteredProducts = useMemo(() => {
     const list = [];
 
-    PRODUCTS.forEach((p) => {
+    products.forEach((p) => {
       // 1. Search filter
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
