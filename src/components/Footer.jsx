@@ -171,29 +171,6 @@ export default function Footer({ onSelectCategory, onOpenAbout, onOpenFaq, onOpe
           </div>
         </div>
 
-        {/* Popular Categories Bar matching BritSofa */}
-        <div className="mt-12 pt-8 border-t border-white/10">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-white/40 mb-3">
-            Popular Categories
-          </p>
-          <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-white/60">
-            <span>Corner sofas</span>
-            <span>•</span>
-            <span>L-shaped sofas</span>
-            <span>•</span>
-            <span>U-shaped sofas</span>
-            <span>•</span>
-            <span>3 seater sofas</span>
-            <span>•</span>
-            <span>Sofa beds</span>
-            <span>•</span>
-            <span>Jumbo cord sofas</span>
-            <span>•</span>
-            <span>Grey sofas</span>
-            <span>•</span>
-            <span>Doorway measurement guide</span>
-          </div>
-        </div>
 
         {/* Bottom Copyright Bar */}
         <div className="mt-8 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-white/50">
