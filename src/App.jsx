@@ -31,7 +31,7 @@ export default function App() {
       }
       if (path.startsWith('/collections') || path.startsWith('/category') || path.startsWith('/shop')) {
         const params = new URLSearchParams(window.location.search);
-        const size = params.get('size') || params.get('category') || 'all';
+        const size = params.get('type') || params.get('size') || params.get('category') || 'all';
         return { name: 'category', categoryId: size };
       }
     } catch (e) {
@@ -60,7 +60,7 @@ export default function App() {
       }
       if (path.startsWith('/collections') || path.startsWith('/category') || path.startsWith('/shop')) {
         const params = new URLSearchParams(window.location.search);
-        const size = params.get('size') || params.get('category') || 'all';
+        const size = params.get('type') || params.get('size') || params.get('category') || 'all';
         setCurrentPage({ name: 'category', categoryId: size });
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
@@ -131,10 +131,10 @@ export default function App() {
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   // Navigation handlers
-  const handleOpenProduct = (product) => {
-    setCurrentPage({ name: 'product', product: product });
+  const handleOpenProduct = (product, variant = null) => {
+    setCurrentPage({ name: 'product', product: product, initialVariant: variant });
     try {
-      window.history.pushState({ slug: product.slug }, '', `/products/${product.slug}`);
+      window.history.pushState({ slug: product.slug, variant: variant?.type }, '', `/products/${product.slug}`);
     } catch (e) {
       console.error(e);
     }
@@ -145,7 +145,7 @@ export default function App() {
     setSelectedCategory(catId);
     setCurrentPage({ name: 'category', categoryId: catId });
     try {
-      const url = catId && catId !== 'all' ? `/collections?size=${catId}` : '/collections';
+      const url = catId && catId !== 'all' ? `/collections/sofa-search?type=${catId}` : '/collections';
       window.history.pushState({ categoryId: catId }, '', url);
     } catch (e) {
       console.error(e);
@@ -155,7 +155,7 @@ export default function App() {
 
   const handleNavigateHome = () => {
     setSelectedCategory('all');
-    setCurrentPage({ name: 'home', product: null, categoryId: 'all' });
+    setCurrentPage({ name: 'home', product: null, categoryId: 'all', initialVariant: null });
     try {
       window.history.pushState(null, '', '/');
     } catch (e) {
@@ -220,6 +220,7 @@ export default function App() {
         /* Dedicated Product Page (Exact BritSofa Layout with Suggested Products) */
         <ProductPage
           product={currentPage.product}
+          initialVariant={currentPage.initialVariant}
           allProducts={PRODUCTS}
           onBack={handleNavigateHome}
           onSelectProduct={handleOpenProduct}
@@ -238,6 +239,7 @@ export default function App() {
           initialCategory={currentPage.categoryId}
           onBack={handleNavigateHome}
           onSelectProduct={handleOpenProduct}
+          onAddToCart={handleAddToCart}
           onNavigateCategory={handleOpenCategory}
         />
       ) : (

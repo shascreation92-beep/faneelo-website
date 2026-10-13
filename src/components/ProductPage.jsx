@@ -41,6 +41,7 @@ export function getCleanVariantName(v) {
 
 export default function ProductPage({
   product,
+  initialVariant = null,
   allProducts = [],
   onBack,
   onSelectProduct,
@@ -55,24 +56,36 @@ export default function ProductPage({
     { type: 'standard', label: 'Standard Suite', price: product.price, imageUrl: product.imageUrl }
   ];
 
-  const [selectedVariant, setSelectedVariant] = useState(variants[0]);
-  const [selectedImage, setSelectedImage] = useState(selectedVariant.imageUrl || product.imageUrl);
+  const getStartingVariant = () => {
+    if (initialVariant) {
+      const found = variants.find(v => v.type === initialVariant.type || v.label === initialVariant.label);
+      if (found) return found;
+    }
+    return variants[0];
+  };
+
+  const startingVariant = getStartingVariant();
+  const [selectedVariant, setSelectedVariant] = useState(startingVariant);
+  const [selectedImage, setSelectedImage] = useState(startingVariant.imageUrl || product.imageUrl);
   const [selectedFabric, setSelectedFabric] = useState('Same as Image');
   const [selectedColor, setSelectedColor] = useState('Same as Image');
   const [cornerFacing, setCornerFacing] = useState('Left Hand Facing (LHF)');
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description'); // 'description' | 'specifications' | 'reviews'
 
-  // Scroll to top and reset state on product switch
+  // Scroll to top and reset state on product switch or initialVariant update
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    setSelectedVariant(variants[0]);
-    setSelectedImage(variants[0]?.imageUrl || product.imageUrl);
+    const cur = initialVariant 
+      ? (variants.find(v => v.type === initialVariant.type || v.label === initialVariant.label) || variants[0])
+      : variants[0];
+    setSelectedVariant(cur);
+    setSelectedImage(cur?.imageUrl || product.imageUrl);
     setSelectedFabric('Same as Image');
     setSelectedColor('Same as Image');
     setQuantity(1);
     setActiveTab('description');
-  }, [product.id]);
+  }, [product.id, initialVariant]);
 
   const handleVariantChange = (v) => {
     setSelectedVariant(v);
