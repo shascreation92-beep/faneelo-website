@@ -175,7 +175,7 @@ export default function CheckoutModal({ isOpen, onClose, items, onOrderSuccess }
                 style={{ width: '100%', textDecoration: 'none', padding: '0.9rem' }}
               >
                 <MessageCircle size={18} />
-                <span>Track &amp; Confirm on WhatsApp (+44 7988 582983)</span>
+                <span>Track &amp; Confirm on WhatsApp ({STORE_INFO.phone})</span>
               </a>
 
               <button
@@ -257,7 +257,7 @@ export default function CheckoutModal({ isOpen, onClose, items, onOrderSuccess }
                   <input
                     type="tel"
                     required
-                    placeholder="e.g. 07988 582983"
+                    placeholder="e.g. 07473 954773"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     style={{

@@ -19,8 +19,8 @@ export const STORE_INFO = {
   url: 'https://faneelo.co.uk',
   tagline: 'Handcrafted Luxury Sofas & Suites UK',
   description: 'Shop luxury British sofas at Faneelo.co.uk: designer corner suites, 2, 3, 4, 5, 6 seaters, modular bouclé and plush velvet sofas with fast UK delivery and Cash on Delivery.',
-  phone: '+44 7988 582983',
-  whatsapp: '447988582983',
+  phone: '+44 7473 954773',
+  whatsapp: '447473954773',
   email: 'support@faneelo.co.uk',
   address: {
     city: 'Wolverhampton',
