@@ -6,11 +6,21 @@ export default function Header({
   cartCount, 
   onOpenCart, 
   onSelectCategory, 
+  onNavigateHome,
   onOpenAbout,
   onOpenFaq,
   onOpenContact
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleHomeClick = (e) => {
+    if (e) e.preventDefault();
+    if (onNavigateHome) {
+      onNavigateHome();
+    } else if (onSelectCategory) {
+      onSelectCategory('all');
+    }
+  };
 
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-4 lg:px-8">
@@ -18,8 +28,8 @@ export default function Header({
         {/* Brand Logo in exact Cormorant Garamond font-display */}
         <a 
           href="/" 
-          onClick={(e) => { e.preventDefault(); onSelectCategory('all'); }}
-          className="font-display shrink-0 text-[1.65rem] font-semibold leading-none tracking-tight text-[#0A0A0A] sm:text-[1.85rem] no-underline"
+          onClick={handleHomeClick}
+          className="font-display shrink-0 text-[1.65rem] font-semibold leading-none tracking-tight text-[#0A0A0A] sm:text-[1.85rem] no-underline cursor-pointer"
         >
           Faneelo
         </a>
@@ -28,7 +38,7 @@ export default function Header({
         <div className="hidden items-center gap-8 md:flex">
           <button 
             type="button"
-            onClick={() => onSelectCategory('all')}
+            onClick={handleHomeClick}
             className="text-sm font-semibold text-[#1C1C1C] transition-colors hover:text-[#0A0A0A] bg-transparent border-0 cursor-pointer"
           >
             Home
@@ -107,7 +117,7 @@ export default function Header({
         <div className="pointer-events-auto mt-2 mx-auto max-w-6xl rounded-2xl border border-[#E7E5E4] bg-white p-4 shadow-xl md:hidden flex flex-col gap-3">
           <button
             type="button"
-            onClick={() => { onSelectCategory('all'); setMobileOpen(false); }}
+            onClick={() => { handleHomeClick(); setMobileOpen(false); }}
             className="text-left text-sm font-semibold text-[#1C1C1C] py-2 border-0 bg-transparent cursor-pointer"
           >
             Home
