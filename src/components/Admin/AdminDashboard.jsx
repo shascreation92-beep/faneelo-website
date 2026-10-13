@@ -576,10 +576,10 @@ export default function AdminDashboard({ onLogout, onNavigateToStore }) {
             <button
               type="button"
               onClick={() => setActiveTab('products')}
-              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`admin-tab-btn ${
                 activeTab === 'products'
-                  ? 'bg-[#111111] text-white shadow-xs'
-                  : 'bg-white text-[#555555] hover:bg-[#F5F5F4] hover:text-[#111111] border border-[#E6E6E6]'
+                  ? 'admin-tab-btn-active'
+                  : 'admin-tab-btn-inactive'
               }`}
             >
               <Layers size={14} />
@@ -589,10 +589,10 @@ export default function AdminDashboard({ onLogout, onNavigateToStore }) {
             <button
               type="button"
               onClick={() => setActiveTab('orders')}
-              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer relative ${
+              className={`admin-tab-btn relative ${
                 activeTab === 'orders'
-                  ? 'bg-[#111111] text-white shadow-xs'
-                  : 'bg-white text-[#555555] hover:bg-[#F5F5F4] hover:text-[#111111] border border-[#E6E6E6]'
+                  ? 'admin-tab-btn-active'
+                  : 'admin-tab-btn-inactive'
               }`}
             >
               <ShoppingBag size={14} />
@@ -1254,7 +1254,7 @@ export default function AdminDashboard({ onLogout, onNavigateToStore }) {
                 <button
                   type="button"
                   onClick={() => setSelectedOrderDetails(null)}
-                  className="px-4 py-1.5 rounded-xl bg-[#111111] text-white hover:bg-black text-xs font-semibold transition cursor-pointer"
+                  className="px-5 py-2 rounded-full admin-btn-black text-xs font-semibold cursor-pointer"
                 >
                   Close
                 </button>

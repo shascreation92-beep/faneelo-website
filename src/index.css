@@ -279,6 +279,35 @@
   color: #111111 !important;
 }
 
+/* Admin Navigation Tab Buttons */
+.admin-tab-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 20px !important;
+  border-radius: 9999px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+}
+.admin-tab-btn-active {
+  background-color: #111111 !important;
+  color: #ffffff !important;
+  border: 1px solid #111111 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+}
+.admin-tab-btn-inactive {
+  background-color: #ffffff !important;
+  color: #444444 !important;
+  border: 1px solid #D6D3D1 !important;
+}
+.admin-tab-btn-inactive:hover {
+  background-color: #F5F5F4 !important;
+  color: #111111 !important;
+  border-color: #A8A29E !important;
+}
+
 /* Admin Login Inputs */
 .admin-login-input {
   width: 100% !important;
