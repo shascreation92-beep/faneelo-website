@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Plus, Edit2, Trash2, Search, ExternalLink, LogOut, 
   Database, RefreshCw, Upload, X, Check, AlertCircle, Layers,
-  DollarSign, Package, Image as ImageIcon, Settings
+  DollarSign, Package, Image as ImageIcon, Settings, ChevronDown
 } from 'lucide-react';
 import { 
   getAllProducts, saveProduct, deleteProduct, 
@@ -288,47 +288,52 @@ export default function AdminDashboard({ onLogout, onNavigateToStore }) {
         </div>
 
         {/* Toolbar */}
-        <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between mb-6">
           <div className="flex flex-1 items-center gap-3">
-            <div className="relative flex-1 max-w-md">
-              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#888888]" />
+            <div className="admin-search-container flex-1 max-w-md">
+              <Search size={16} className="admin-search-icon" />
               <input
                 type="text"
                 placeholder="Search sofas by name or collection..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-full border border-[#D6D3D1] bg-white text-xs font-medium text-[#111111] focus:outline-none focus:border-black transition"
+                className="admin-search-input font-sans"
               />
             </div>
 
-            <select
-              value={selectedCollection}
-              onChange={(e) => setSelectedCollection(e.target.value)}
-              className="px-4 py-2.5 rounded-full border border-[#D6D3D1] bg-white text-xs font-medium text-[#111111] focus:outline-none focus:border-black transition cursor-pointer"
-            >
-              <option value="all">All Collections</option>
-              {AVAILABLE_COLLECTIONS.map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
+            <div className="admin-select-container">
+              <select
+                value={selectedCollection}
+                onChange={(e) => setSelectedCollection(e.target.value)}
+                className="admin-select-pill font-sans"
+              >
+                <option value="all">All Collections</option>
+                {AVAILABLE_COLLECTIONS.map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="admin-select-arrow" />
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={handleSeedCatalog}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-[#D6D3D1] bg-white text-xs font-semibold text-[#555555] hover:text-[#111111] hover:bg-[#F5F5F4] transition cursor-pointer"
+              className="admin-btn-secondary"
               title="Reset default 12 BritSofa products"
             >
-              <RefreshCw size={13} /> Reset Default Catalog
+              <RefreshCw size={14} />
+              <span>Reset Default Catalog</span>
             </button>
 
             <button
               type="button"
               onClick={handleOpenAdd}
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full admin-btn-black text-xs font-semibold transition cursor-pointer shadow-xs"
+              className="admin-btn-black px-5 rounded-full text-xs font-semibold"
             >
-              <Plus size={16} /> Add New Product
+              <Plus size={16} />
+              <span>Add New Product</span>
             </button>
           </div>
         </div>

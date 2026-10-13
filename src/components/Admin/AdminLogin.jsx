@@ -69,15 +69,13 @@ export default function AdminLogin({ onLoginSuccess, onBackToStore }) {
                 Admin Email
               </label>
               <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#888888]">
-                  <Mail size={16} />
-                </div>
+                <Mail size={16} className="admin-login-icon" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-2xl border border-[#D6D3D1] bg-white pl-10 pr-4 py-3 text-sm text-[#111111] focus:border-[#111111] focus:outline-none transition shadow-2xs"
+                  className="admin-login-input"
                   placeholder="admin@faneelo.co.uk"
                 />
               </div>
@@ -88,15 +86,13 @@ export default function AdminLogin({ onLoginSuccess, onBackToStore }) {
                 Password
               </label>
               <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#888888]">
-                  <Lock size={16} />
-                </div>
+                <Lock size={16} className="admin-login-icon" />
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-2xl border border-[#D6D3D1] bg-white pl-10 pr-4 py-3 text-sm text-[#111111] focus:border-[#111111] focus:outline-none transition shadow-2xs"
+                  className="admin-login-input"
                   placeholder="••••••••"
                 />
               </div>

@@ -163,6 +163,11 @@
   border: none !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
+  height: 42px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
 }
 .admin-btn-black:hover {
   background-color: #000000 !important;
@@ -171,4 +176,137 @@
 .admin-badge-black {
   background-color: #111111 !important;
   color: #ffffff !important;
+}
+
+/* Admin Toolbar Exact Input & Select Styles */
+.admin-search-container {
+  position: relative !important;
+  width: 100% !important;
+}
+
+.admin-search-input {
+  width: 100% !important;
+  height: 42px !important;
+  padding-left: 44px !important;
+  padding-right: 18px !important;
+  border-radius: 9999px !important;
+  border: 1px solid #D6D3D1 !important;
+  background-color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #111111 !important;
+  outline: none !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+.admin-search-input:focus {
+  border-color: #111111 !important;
+  box-shadow: 0 0 0 1px #111111 !important;
+}
+
+.admin-search-icon {
+  position: absolute !important;
+  left: 16px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #888888 !important;
+  pointer-events: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.admin-select-container {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  min-width: 150px !important;
+}
+
+.admin-select-pill {
+  width: 100% !important;
+  height: 42px !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  padding-left: 18px !important;
+  padding-right: 38px !important;
+  border-radius: 9999px !important;
+  border: 1px solid #D6D3D1 !important;
+  background-color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #111111 !important;
+  cursor: pointer !important;
+  outline: none !important;
+  transition: border-color 0.2s ease !important;
+}
+.admin-select-pill:focus {
+  border-color: #111111 !important;
+}
+
+.admin-select-arrow {
+  position: absolute !important;
+  right: 14px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  pointer-events: none !important;
+  color: #555555 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.admin-btn-secondary {
+  height: 42px !important;
+  padding-left: 18px !important;
+  padding-right: 18px !important;
+  border-radius: 9999px !important;
+  border: 1px solid #D6D3D1 !important;
+  background-color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #555555 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  white-space: nowrap !important;
+}
+.admin-btn-secondary:hover {
+  background-color: #F5F5F4 !important;
+  color: #111111 !important;
+}
+
+/* Admin Login Inputs */
+.admin-login-input {
+  width: 100% !important;
+  padding-left: 44px !important;
+  padding-right: 16px !important;
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+  border-radius: 16px !important;
+  border: 1px solid #D6D3D1 !important;
+  background-color: #ffffff !important;
+  font-size: 14px !important;
+  color: #111111 !important;
+  outline: none !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+.admin-login-input:focus {
+  border-color: #111111 !important;
+  box-shadow: 0 0 0 1px #111111 !important;
+}
+
+.admin-login-icon {
+  position: absolute !important;
+  left: 16px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #888888 !important;
+  pointer-events: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
