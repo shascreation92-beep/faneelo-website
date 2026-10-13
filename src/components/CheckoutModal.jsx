@@ -417,11 +417,38 @@ export default function CheckoutModal({ isOpen, onClose, items, onOrderSuccess }
               <div style={{ marginTop: '0.8rem' }}>
                 <button
                   type="submit"
-                  className="btn-primary"
-                  style={{ width: '100%', fontSize: '1rem', padding: '1rem' }}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: '#1C1C1C',
+                    color: '#FFFFFF',
+                    padding: '0.95rem 1.25rem',
+                    borderRadius: '12px',
+                    border: 'none',
+                    fontSize: '0.95rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                    boxShadow: '0 4px 14px rgba(0, 0, 0, 0.18)',
+                    transition: 'all 0.2s ease',
+                    lineHeight: 1.35
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#000000';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#1C1C1C';
+                  }}
                 >
-                  <span>Place Order with Cash on Delivery (£{totalAmount.toLocaleString('en-GB')})</span>
-                  <ArrowRight size={18} />
+                  <span style={{ textAlign: 'center' }}>
+                    Place Order with Cash on Delivery{' '}
+                    <span style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '4px', verticalAlign: 'middle' }}>
+                      (£{totalAmount.toLocaleString('en-GB')})
+                      <ArrowRight size={17} style={{ flexShrink: 0 }} />
+                    </span>
+                  </span>
                 </button>
               </div>
             </div>
