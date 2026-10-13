@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, CheckCircle2, Banknote, ArrowRight, MessageCircle } from 'lucide-react';
 import { STORE_INFO } from '../data/products';
+import { saveOrder } from '../services/orderService';
 
 export default function CheckoutModal({ isOpen, onClose, items, onOrderSuccess }) {
   const [formData, setFormData] = useState({
@@ -32,18 +33,14 @@ export default function CheckoutModal({ isOpen, onClose, items, onOrderSuccess }
       orderId,
       date: new Date().toLocaleDateString('en-GB'),
       timestamp: new Date().toISOString(),
+      status: 'Pending Confirmation',
       items,
       totalAmount,
       customer: formData
     };
 
-    // Persist order to localStorage to prevent data loss
-    try {
-      const existingOrders = JSON.parse(localStorage.getItem('faneelo_orders_v1') || '[]');
-      localStorage.setItem('faneelo_orders_v1', JSON.stringify([newOrder, ...existingOrders]));
-    } catch (err) {
-      console.warn('Could not save order locally:', err);
-    }
+    // Persist order to storage & cloud
+    saveOrder(newOrder);
 
     setSubmittedOrder(newOrder);
     onOrderSuccess();
