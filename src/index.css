@@ -310,3 +310,69 @@
   align-items: center !important;
   justify-content: center !important;
 }
+
+/* Admin Pagination Styles */
+.admin-pagination-btn {
+  height: 34px !important;
+  min-width: 34px !important;
+  padding: 0 10px !important;
+  border-radius: 10px !important;
+  border: 1px solid #E6E6E6 !important;
+  background-color: #ffffff !important;
+  color: #333333 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  user-select: none !important;
+}
+.admin-pagination-btn:hover:not(:disabled) {
+  border-color: #111111 !important;
+  background-color: #FAF9F5 !important;
+}
+.admin-pagination-btn:disabled {
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
+}
+.admin-pagination-btn.active {
+  background-color: #111111 !important;
+  color: #ffffff !important;
+  border-color: #111111 !important;
+}
+
+/* Admin Gallery Thumbnails */
+.admin-gallery-card {
+  position: relative !important;
+  aspect-ratio: 4 / 3 !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  border: 1px solid #E6E6E6 !important;
+  background-color: #F5F5F4 !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+.admin-gallery-card:hover {
+  border-color: #111111 !important;
+}
+.admin-gallery-card.is-primary {
+  border: 2px solid #111111 !important;
+  box-shadow: 0 0 0 1px #111111 !important;
+}
+
+/* Admin Color Swatch Chip */
+.admin-color-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 4px 10px !important;
+  border-radius: 9999px !important;
+  background-color: #ffffff !important;
+  border: 1px solid #D6D3D1 !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #111111 !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+}
+
