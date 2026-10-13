@@ -305,43 +305,43 @@ export default function ProductPage({
             {/* Colour & Fabric Type Dropdowns matching BritSofa */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 max-w-lg">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-2 font-sans">
                   COLOUR
                 </label>
-                <div className="relative">
+                <div className="luxury-dropdown-container">
                   <select
                     value={selectedColor}
                     onChange={(e) => setSelectedColor(e.target.value)}
-                    className="w-full appearance-none rounded-xl border border-[#D6D3D1] bg-white px-4 py-3 pr-8 text-sm font-normal text-[#111111] focus:border-black focus:outline-none transition cursor-pointer shadow-2xs"
+                    className="luxury-dropdown-select font-sans"
                   >
                     <option value="Same as Image">Same as Image</option>
                     {(product.colorList || []).map((col) => (
                       <option key={col} value={col}>{col}</option>
                     ))}
                   </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-[#78716C]">
-                    <ChevronDown size={16} />
+                  <div className="luxury-dropdown-arrow">
+                    <ChevronDown size={17} strokeWidth={2.2} />
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#111111] mb-2 font-sans">
                   FABRIC TYPE
                 </label>
-                <div className="relative">
+                <div className="luxury-dropdown-container">
                   <select
                     value={selectedFabric}
                     onChange={(e) => setSelectedFabric(e.target.value)}
-                    className="w-full appearance-none rounded-xl border border-[#D6D3D1] bg-white px-4 py-3 pr-8 text-sm font-normal text-[#111111] focus:border-black focus:outline-none transition cursor-pointer shadow-2xs"
+                    className="luxury-dropdown-select font-sans"
                   >
                     <option value="Same as Image">Same as Image</option>
                     {(product.fabricList || []).map((fab) => (
                       <option key={fab} value={fab}>{fab}</option>
                     ))}
                   </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-[#78716C]">
-                    <ChevronDown size={16} />
+                  <div className="luxury-dropdown-arrow">
+                    <ChevronDown size={17} strokeWidth={2.2} />
                   </div>
                 </div>
               </div>
