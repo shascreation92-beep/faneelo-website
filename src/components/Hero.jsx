@@ -1,297 +1,103 @@
-import React from 'react';
-import { ArrowRight, ShieldCheck, Truck, Banknote, Sparkles, Star } from 'lucide-react';
-import { STORE_INFO } from '../data/products';
+import React, { useState, useEffect } from 'react';
+
+const HERO_IMAGES = [
+  'https://britsofa.co.uk/1.png',
+  'https://britsofa.co.uk/2.png',
+  'https://britsofa.co.uk/3.png',
+  'https://britsofa.co.uk/4.png'
+];
 
 export default function Hero({ onExploreClick, onCornerClick }) {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <section style={{
-      position: 'relative',
-      backgroundColor: '#121212',
-      color: '#FFFFFF',
-      overflow: 'hidden',
-      paddingTop: '3.5rem',
-      paddingBottom: '4.5rem'
-    }}>
-      {/* Subtle luxury background radial gradient */}
-      <div style={{
-        position: 'absolute',
-        top: '-150px',
-        right: '-100px',
-        width: '600px',
-        height: '600px',
-        borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(197, 168, 128, 0.12) 0%, rgba(18, 18, 18, 0) 70%)',
-        pointerEvents: 'none'
-      }} />
+    <section className="relative isolate min-h-[100svh] w-full overflow-hidden bg-[#2B2B2B]">
+      {/* Background Image Carousel with smooth fade transition */}
+      {HERO_IMAGES.map((img, idx) => (
+        <div
+          key={idx}
+          className={`absolute inset-0 transition-opacity duration-1000 ease-out ${
+            idx === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-105 pointer-events-none'
+          }`}
+          style={{ transitionProperty: 'opacity, transform' }}
+        >
+          <img
+            src={img}
+            alt={`Faneelo luxury UK sofa ${idx + 1}`}
+            className="h-full w-full object-cover object-center"
+          />
+        </div>
+      ))}
 
-      <div className="container">
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '3rem',
-          alignItems: 'center'
-        }}>
-          {/* Left Column: Headlines & CTAs */}
-          <div style={{ maxWidth: '620px' }}>
-            {/* Pill Badge */}
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              backgroundColor: 'rgba(197, 168, 128, 0.15)',
-              border: '1px solid rgba(197, 168, 128, 0.3)',
-              borderRadius: 'var(--radius-full)',
-              padding: '0.4rem 1rem',
-              marginBottom: '1.5rem'
-            }}>
-              <Sparkles size={14} color="#C5A880" />
-              <span style={{
-                color: '#E5C396',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase'
-              }}>
-                Direct From Master Craftsmen • UK Wide
-              </span>
-            </div>
+      {/* Dual Gradient Overlays matching BritSofa */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/30 to-black/15 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/25 pointer-events-none" />
 
-            {/* Main Headline */}
-            <h1 style={{
-              fontSize: 'clamp(2.5rem, 5vw, 3.8rem)',
-              lineHeight: 1.1,
-              fontWeight: 600,
-              color: '#FFFFFF',
-              marginBottom: '1.25rem',
-              letterSpacing: '-0.02em'
-            }}>
-              Luxury Sofas Crafted For <span style={{ color: '#E5C396', fontStyle: 'italic' }}>Modern Living</span>.
-            </h1>
+      {/* Hero Content Container */}
+      <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-end px-5 pb-16 pt-28 sm:px-8 sm:pb-20 sm:pt-32 lg:justify-center lg:px-12 lg:pb-24 lg:pt-28">
+        <div className="max-w-2xl space-y-6 text-white">
+          {/* Badge */}
+          <p className="inline-flex rounded-full border border-white/55 bg-white/5 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/95 backdrop-blur-sm sm:text-xs">
+            Luxury Sofas Collection
+          </p>
 
-            {/* Subtitle */}
-            <p style={{
-              fontSize: '1.1rem',
-              lineHeight: 1.6,
-              color: '#BDB9B2',
-              marginBottom: '2rem',
-              fontWeight: 400
-            }}>
-              Upgrade your living space with bespoke velvet and chenille corner suites, 3+2 packages, and modular bouclé sofas. Hand-delivered across the UK in <strong>1–3 working days</strong> with complete peace of mind through <strong>Cash on Delivery</strong>.
+          {/* Typography Headings in exact Cormorant Garamond font-display */}
+          <div className="space-y-3">
+            <p className="font-display text-5xl font-semibold leading-[0.95] tracking-tight text-white sm:text-6xl md:text-7xl lg:text-[5.25rem]">
+              Faneelo
             </p>
-
-            {/* Action Buttons */}
-            <div style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '1rem',
-              marginBottom: '2.5rem'
-            }}>
-              <button 
-                onClick={onExploreClick}
-                className="btn-gold"
-                style={{ fontSize: '1rem', padding: '0.95rem 1.8rem' }}
-              >
-                <span>Shop Sofas Collection</span>
-                <ArrowRight size={18} />
-              </button>
-
-              <button 
-                onClick={onCornerClick}
-                className="btn-secondary"
-                style={{ 
-                  backgroundColor: 'rgba(255, 255, 255, 0.08)', 
-                  color: '#FFFFFF',
-                  borderColor: 'rgba(255, 255, 255, 0.2)',
-                  fontSize: '1rem',
-                  padding: '0.95rem 1.8rem'
-                }}
-              >
-                <span>Corner Sofas</span>
-              </button>
-
-              <a 
-                href={`https://wa.me/${STORE_INFO.whatsapp}?text=Hi%20Faneelo%2C%20I%20am%20interested%20in%20ordering%20a%20sofa.`}
-                target="_blank"
-                rel="noreferrer"
-                className="btn-whatsapp"
-                style={{ fontSize: '0.95rem', padding: '0.95rem 1.5rem' }}
-              >
-                <span>Order via WhatsApp</span>
-              </a>
-            </div>
-
-            {/* Trustpilot Score Bar */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1.2rem',
-              paddingTop: '1.5rem',
-              borderTop: '1px solid rgba(255, 255, 255, 0.12)'
-            }}>
-              <div style={{ display: 'flex', gap: '3px' }}>
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} style={{
-                    width: '24px',
-                    height: '24px',
-                    backgroundColor: '#00B67A',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '2px'
-                  }}>
-                    <Star size={14} fill="#FFFFFF" color="#FFFFFF" />
-                  </div>
-                ))}
-              </div>
-
-              <div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#FFFFFF' }}>
-                  Rated 4.9 / 5 on Trustpilot
-                </div>
-                <div style={{ fontSize: '0.75rem', color: '#8E8B85' }}>
-                  Based on 1,420+ verified UK homeowner deliveries
-                </div>
-              </div>
-            </div>
+            <h1 className="font-display text-3xl font-medium leading-[1.1] tracking-tight text-white/95 sm:text-4xl md:text-5xl">
+              Sofas for sale in the UK — order online
+            </h1>
           </div>
 
-          {/* Right Column: Hero Visual Card with Showcase Image */}
-          <div style={{ position: 'relative' }}>
-            <div style={{
-              borderRadius: 'var(--radius-xl)',
-              overflow: 'hidden',
-              boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.8)',
-              border: '1px solid rgba(197, 168, 128, 0.25)',
-              position: 'relative'
-            }}>
-              <img 
-                src="https://backend.britsofa.co.uk/uploads/1778435615509-Corner-Sofa.jpeg"
-                alt="Faneelo Luxury British Corner Sofa in Plush Fabric"
-                style={{
-                  width: '100%',
-                  height: '440px',
-                  objectFit: 'cover',
-                  display: 'block'
-                }}
-              />
+          {/* Subtext */}
+          <p className="max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
+            Shop corner sofas, fabric sofas and sofa beds with clear sizes on every listing. Cash on delivery where offered at checkout.
+          </p>
 
-              {/* Gradient overlay at bottom of image */}
-              <div style={{
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                background: 'linear-gradient(to top, rgba(18, 18, 18, 0.95) 0%, rgba(18, 18, 18, 0) 65%)',
-                padding: '2rem 1.5rem 1.25rem'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-end'
-                }}>
-                  <div>
-                    <span className="badge-gold" style={{ marginBottom: '0.5rem', display: 'inline-block' }}>
-                      Flagship Suite
-                    </span>
-                    <h3 style={{ color: '#FFFFFF', fontSize: '1.4rem', fontWeight: 600 }}>
-                      Luxury Lilly Corner Sofa
-                    </h3>
-                    <p style={{ color: '#C5A880', fontSize: '0.85rem' }}>
-                      Available in 20+ UK Velvet &amp; Chenille Shades
-                    </p>
-                  </div>
+          {/* Buttons */}
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center">
+            <button
+              type="button"
+              onClick={onExploreClick}
+              className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3.5 text-sm font-semibold text-[#1A1A1A] transition hover:bg-white/90 border-0 cursor-pointer shadow-md"
+            >
+              Shop Sofas
+            </button>
 
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '0.75rem', color: '#9C9892', textTransform: 'uppercase' }}>
-                      From Only
-                    </div>
-                    <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--font-sans)' }}>
-                      £550
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Floating Trust Card Top-Left */}
-            <div style={{
-              position: 'absolute',
-              top: '-15px',
-              left: '-15px',
-              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(10px)',
-              padding: '0.75rem 1.1rem',
-              borderRadius: 'var(--radius-md)',
-              boxShadow: 'var(--shadow-lg)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              border: '1px solid #E8E5DF'
-            }} className="desktop-hero-pill">
-              <div style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                backgroundColor: '#DCFCE7',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <Banknote size={18} color="#15803D" />
-              </div>
-              <div>
-                <div style={{ fontSize: '0.825rem', fontWeight: 700, color: '#1A1A1A' }}>
-                  Cash on Delivery
-                </div>
-                <div style={{ fontSize: '0.7rem', color: '#666' }}>
-                  Inspect before you pay
-                </div>
-              </div>
-            </div>
-
-            {/* Floating Trust Card Bottom-Right */}
-            <div style={{
-              position: 'absolute',
-              bottom: '20px',
-              right: '-15px',
-              backgroundColor: '#1C1C1C',
-              border: '1px solid rgba(197, 168, 128, 0.4)',
-              padding: '0.75rem 1.1rem',
-              borderRadius: 'var(--radius-md)',
-              boxShadow: '0 12px 30px rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem'
-            }} className="desktop-hero-pill">
-              <div style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(197, 168, 128, 0.2)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <Truck size={18} color="#C5A880" />
-              </div>
-              <div>
-                <div style={{ fontSize: '0.825rem', fontWeight: 700, color: '#FFFFFF' }}>
-                  1–3 Day UK Delivery
-                </div>
-                <div style={{ fontSize: '0.7rem', color: '#BDB9B2' }}>
-                  White glove 2-man room delivery
-                </div>
-              </div>
-            </div>
+            <button
+              type="button"
+              onClick={onCornerClick}
+              className="inline-flex items-center justify-center rounded-full border border-white/80 px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10 bg-transparent cursor-pointer"
+            >
+              Corner Sofas
+            </button>
           </div>
         </div>
-      </div>
 
-      <style>{`
-        @media (max-width: 768px) {
-          .desktop-hero-pill { display: none !important; }
-        }
-      `}</style>
+        {/* Carousel Dot Indicators */}
+        <div className="mt-8 flex items-center gap-2">
+          {HERO_IMAGES.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setCurrentSlide(i)}
+              className={`h-1.5 rounded-full transition-all duration-300 border-0 cursor-pointer p-0 ${
+                i === currentSlide ? 'w-6 bg-white' : 'w-2 bg-white/40 hover:bg-white/70'
+              }`}
+              aria-label={`Go to slide ${i + 1}`}
+            />
+          ))}
+        </div>
+      </div>
     </section>
   );
 }

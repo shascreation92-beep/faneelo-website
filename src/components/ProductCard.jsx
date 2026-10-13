@@ -1,277 +1,96 @@
 import React from 'react';
-import { Star, Truck, Eye, MessageCircle, ShoppingBag } from 'lucide-react';
-import { STORE_INFO } from '../data/products';
 
-export default function ProductCard({ product, onSelectProduct, onQuickAdd }) {
-  const displayPrice = product.price || 550;
-  const originalPrice = product.originalPrice && product.originalPrice > displayPrice 
-    ? product.originalPrice 
-    : Math.round(displayPrice * 1.25);
-
-  const colors = product.colorList ? product.colorList.slice(0, 5) : ['Charcoal', 'Grey', 'Beige', 'Navy'];
+export default function ProductCard({ product, onSelectProduct }) {
+  const displayPrice = product.price || 250;
+  const rating = product.rating || 5;
+  const soldCount = product.soldCount || 100;
+  const collectionName = product.collection || product.type || 'Sofa';
 
   return (
-    <div 
-      className="surface-card"
-      style={{
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        backgroundColor: '#FFFFFF',
-        cursor: 'pointer'
-      }}
+    <article
       onClick={() => onSelectProduct(product)}
+      className="surface-card group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm border border-[#E6E6E6] transition-all hover:shadow-md cursor-pointer"
     >
       {/* Product Image */}
-      <div style={{
-        position: 'relative',
-        width: '100%',
-        paddingTop: '68%',
-        backgroundColor: '#F3F2EE',
-        overflow: 'hidden'
-      }}>
-        <img 
-          src={product.imageUrl} 
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F5F5F4]">
+        <img
+          src={product.imageUrl}
           alt={product.name}
           loading="lazy"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            transition: 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.06)'}
-          onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
-        {/* Top Badges */}
-        <div style={{
-          position: 'absolute',
-          top: '12px',
-          left: '12px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '6px',
-          zIndex: 2
-        }}>
-          {product.badge && (
-            <span className={product.badge.includes('Sale') ? 'badge-gold' : 'badge-dark'}>
-              {product.badge}
-            </span>
-          )}
-          <span className="badge-green" style={{ fontSize: '0.68rem' }}>
-            Cash On Delivery
+        {/* Badge Top Left matching BritSofa */}
+        <div className="absolute top-4 left-4 z-10">
+          <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium text-[#1C1C1C] shadow-sm backdrop-blur-sm">
+            {product.badge || 'Best Seller'}
           </span>
         </div>
 
-        {/* Quick View Button */}
-        <div style={{
-          position: 'absolute',
-          bottom: '10px',
-          right: '10px',
-          zIndex: 2
-        }}>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectProduct(product);
-            }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(8px)',
-              border: '1px solid rgba(0,0,0,0.06)',
-              borderRadius: 'var(--radius-full)',
-              padding: '0.45rem 0.85rem',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              color: 'var(--color-primary)',
-              cursor: 'pointer',
-              boxShadow: 'var(--shadow-sm)'
-            }}
-          >
-            <Eye size={13} />
-            <span>Options</span>
-          </button>
+        {/* Quick eye/wishlist overlay on hover */}
+        <div className="absolute top-4 right-4 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="rounded-full bg-white/90 p-2 text-[#2B2B2B] shadow-sm backdrop-blur-sm">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          </div>
         </div>
       </div>
 
-      {/* Card Content */}
-      <div style={{
-        padding: '1.25rem',
-        display: 'flex',
-        flexDirection: 'column',
-        flex: 1
-      }}>
-        {/* Collection & Rating */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '0.4rem'
-        }}>
-          <span style={{
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-            color: '#8C6838'
-          }}>
-            {product.collection ? `${product.collection} Suite` : 'Designer Suite'}
-          </span>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-            <Star size={13} fill="#C5A880" color="#C5A880" />
-            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#1A1A1A' }}>
-              {product.rating || 5}.0
-            </span>
-            <span style={{ fontSize: '0.72rem', color: '#888' }}>
-              ({product.soldCount || 80}+)
-            </span>
-          </div>
-        </div>
-
+      {/* Card Content matching BritSofa exact typography */}
+      <div className="p-6 flex flex-col flex-1">
         {/* Title */}
-        <h3 style={{
-          fontSize: '1.1rem',
-          fontWeight: 600,
-          lineHeight: 1.35,
-          color: '#1A1A1A',
-          marginBottom: '0.6rem',
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden'
-        }}>
+        <h3 className="mb-2 text-xl font-bold leading-snug tracking-tight text-[#2B2B2B] line-clamp-2 group-hover:text-[#1C1C1C] transition-colors font-display">
           {product.name}
         </h3>
 
-        {/* Color preview tags */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.35rem',
-          marginBottom: '1rem',
-          flexWrap: 'wrap'
-        }}>
-          <span style={{ fontSize: '0.72rem', color: '#777' }}>Colors:</span>
-          {colors.map((c, i) => (
-            <span 
-              key={i}
-              style={{
-                fontSize: '0.68rem',
-                backgroundColor: 'var(--color-bg-alt)',
-                border: '1px solid var(--color-border)',
-                padding: '1px 6px',
-                borderRadius: '4px',
-                color: '#555'
-              }}
-            >
-              {c}
-            </span>
-          ))}
-          {product.colorList && product.colorList.length > 5 && (
-            <span style={{ fontSize: '0.68rem', color: '#8C6838', fontWeight: 600 }}>
-              +{product.colorList.length - 5} more
-            </span>
-          )}
+        {/* Collection Category */}
+        <div className="mb-3">
+          <span className="text-xs font-medium text-[#6B6B6B]">
+            {collectionName}
+          </span>
         </div>
 
-        {/* Price & Delivery */}
-        <div style={{
-          marginTop: 'auto',
-          paddingTop: '0.9rem',
-          borderTop: '1px solid #F1EFEA',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
-          marginBottom: '1rem'
-        }}>
-          <div>
-            <div style={{ fontSize: '0.72rem', color: '#888', textTransform: 'uppercase', fontWeight: 600 }}>
-              Starting Price
-            </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.45rem' }}>
-              <span style={{
-                fontSize: '1.45rem',
-                fontWeight: 800,
-                color: '#121212',
-                fontFamily: 'var(--font-sans)'
-              }}>
-                £{displayPrice.toLocaleString('en-GB')}
+        {/* Stars */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex gap-0.5">
+            {[...Array(5)].map((_, i) => (
+              <span key={i} className={`text-sm ${i < rating ? 'text-[#1C1C1C]' : 'text-[#E6E6E6]'}`}>
+                ★
               </span>
-              <span style={{
-                fontSize: '0.85rem',
-                color: '#A09C94',
-                textDecoration: 'line-through'
-              }}>
-                £{originalPrice.toLocaleString('en-GB')}
-              </span>
-            </div>
+            ))}
           </div>
-
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.3rem',
-            color: '#15803D',
-            fontSize: '0.75rem',
-            fontWeight: 700
-          }}>
-            <Truck size={14} />
-            <span>Free UK Delivery</span>
-          </div>
+          <span className="text-xs text-[#8A8A8A]">
+            ({soldCount}+)
+          </span>
         </div>
 
-        {/* Action Buttons */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.5rem' }}>
+        {/* Bottom Pricing & Action Row */}
+        <div className="flex items-end justify-between gap-3 pt-3 border-t border-[#E6E6E6] mt-auto">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#8A8A8A]">
+              Starting price
+            </p>
+            <p className="text-2xl font-bold text-[#2B2B2B] tabular-nums">
+              £{displayPrice.toLocaleString('en-GB')}
+            </p>
+            <p className="text-xs text-[#1C1C1C] font-medium mt-1">
+              Free delivery
+            </p>
+          </div>
+
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectProduct(product);
-            }}
-            className="btn-primary"
-            style={{
-              padding: '0.65rem 1rem',
-              fontSize: '0.85rem',
-              width: '100%'
-            }}
+            type="button"
+            className="btn-primary shrink-0 text-sm px-4 py-2 text-center font-semibold rounded-full bg-[#1C1C1C] text-white hover:bg-[#0A0A0A] transition-all border-0 cursor-pointer"
           >
-            Customise &amp; Order
+            Explore
           </button>
-
-          <a
-            href={`https://wa.me/${STORE_INFO.whatsapp}?text=Hi%20Faneelo%2C%20I%20am%20interested%20in%20the%20${encodeURIComponent(product.name)}%20(Starting%20£${displayPrice})`}
-            target="_blank"
-            rel="noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '40px',
-              height: '40px',
-              borderRadius: 'var(--radius-full)',
-              backgroundColor: '#25D366',
-              color: '#FFFFFF',
-              textDecoration: 'none',
-              boxShadow: '0 2px 8px rgba(37, 211, 102, 0.25)',
-              transition: 'transform 0.2s'
-            }}
-            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.08)'}
-            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-            aria-label="Order sofa directly on WhatsApp"
-          >
-            <MessageCircle size={18} />
-          </a>
         </div>
       </div>
-    </div>
+
+      {/* Border overlay */}
+      <div className="absolute inset-0 rounded-2xl border-2 border-[#1C1C1C] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    </article>
   );
 }

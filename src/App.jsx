@@ -7,29 +7,25 @@ import ProductModal from './components/ProductModal';
 import CartDrawer from './components/CartDrawer';
 import CheckoutModal from './components/CheckoutModal';
 import TrustBadges from './components/TrustBadges';
-import CustomerReviews from './components/CustomerReviews';
 import AboutModal from './components/AboutModal';
 import FaqModal from './components/FaqModal';
 import WhatsAppButton from './components/WhatsAppButton';
 import Footer from './components/Footer';
 
 import { PRODUCTS, STORE_INFO } from './data/products';
-import { SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 
 export default function App() {
-  // Navigation & Filtering State
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState('featured');
 
-  // Modals & Drawers State
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isFaqOpen, setIsFaqOpen] = useState(false);
 
-  // Cart State (stored in memory & localStorage)
+  // Cart
   const [cart, setCart] = useState(() => {
     try {
       const saved = localStorage.getItem('faneelo_cart');
@@ -39,7 +35,6 @@ export default function App() {
     }
   });
 
-  // Save to local storage whenever cart changes
   const saveCart = (newCart) => {
     setCart(newCart);
     try {
@@ -86,16 +81,11 @@ export default function App() {
     saveCart(updated);
   };
 
-  const handleOrderSuccess = () => {
-    saveCart([]);
-  };
-
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Filter & Sort Products
+  // Filtered Products
   const filteredProducts = useMemo(() => {
     return PRODUCTS.filter((p) => {
-      // Search filter
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchesName = p.name.toLowerCase().includes(q);
@@ -104,7 +94,6 @@ export default function App() {
         if (!matchesName && !matchesDesc && !matchesCol) return false;
       }
 
-      // Category filter
       if (selectedCategory !== 'all') {
         if (selectedCategory === 'corner-sofa') {
           const hasCornerVariant = (p.variants || []).some(v => v.type === 'corner-sofa') || p.hasCornerVariant;
@@ -114,11 +103,7 @@ export default function App() {
           const has32 = (p.variants || []).some(v => v.type === '3plus2-seater');
           const nameHas32 = p.name.toLowerCase().includes('3+2') || p.name.toLowerCase().includes('3 plus 2');
           if (!has32 && !nameHas32) return false;
-        } else if (selectedCategory === 'modular-boucle') {
-          const isBoucle = p.name.toLowerCase().includes('bouclé') || p.name.toLowerCase().includes('modular');
-          if (!isBoucle) return false;
         } else {
-          // Check specific seaters: 2-seater, 3-seater, 4-seater, 5-seater, 6-seater
           const hasVariant = (p.variants || []).some(v => v.type === selectedCategory);
           if (!hasVariant) return false;
         }
@@ -128,45 +113,39 @@ export default function App() {
     }).sort((a, b) => {
       if (sortOption === 'price-asc') return (a.price || 0) - (b.price || 0);
       if (sortOption === 'price-desc') return (b.price || 0) - (a.price || 0);
-      if (sortOption === 'rating') return (b.rating || 5) - (a.rating || 5);
       return (b.soldCount || 0) - (a.soldCount || 0);
     });
   }, [searchQuery, selectedCategory, sortOption]);
 
   const scrollToShop = () => {
-    const el = document.getElementById('sofas-catalog');
+    const el = document.getElementById('shop');
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleCornerQuickClick = () => {
-    setSelectedCategory('corner-sofa');
-    scrollToShop();
-  };
-
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* 1. Header with announcement, navigation, search and basket */}
+    <div className="min-h-full bg-[#F5F5F4] text-[#0A0A0A] font-sans">
+      {/* 1. Exact Floating Pill Header */}
       <Header
         cartCount={cartCount}
         onOpenCart={() => setIsCartOpen(true)}
-        selectedCategory={selectedCategory}
         onSelectCategory={(cat) => {
           setSelectedCategory(cat);
           scrollToShop();
         }}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
         onOpenAbout={() => setIsAboutOpen(true)}
         onOpenFaq={() => setIsFaqOpen(true)}
       />
 
-      {/* 2. Hero Section */}
+      {/* 2. Exact Hero Section */}
       <Hero
         onExploreClick={scrollToShop}
-        onCornerClick={handleCornerQuickClick}
+        onCornerClick={() => {
+          setSelectedCategory('corner-sofa');
+          scrollToShop();
+        }}
       />
 
-      {/* 3. Style & Size Category Carousel/Grid */}
+      {/* 3. Exact Shop by Category Grid */}
       <CategoriesGrid
         selectedCategory={selectedCategory}
         onSelectCategory={(cat) => {
@@ -175,153 +154,52 @@ export default function App() {
         }}
       />
 
-      {/* 4. Sofa Catalog Section */}
-      <section 
-        id="sofas-catalog" 
-        style={{
-          paddingTop: '3rem',
-          paddingBottom: '5rem',
-          backgroundColor: '#FFFFFF',
-          borderTop: '1px solid var(--color-border)'
-        }}
-      >
-        <div className="container">
-          {/* Catalog Controls Header */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            marginBottom: '2rem',
-            flexWrap: 'wrap',
-            gap: '1.25rem',
-            paddingBottom: '1.25rem',
-            borderBottom: '1px solid #F1EFEA'
-          }}>
+      {/* 4. Exact Bestsellers Section matching BritSofa #shop */}
+      <section id="shop" className="bg-white py-20">
+        <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
+          {/* Header */}
+          <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
-              <div style={{
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                letterSpacing: '0.15em',
-                textTransform: 'uppercase',
-                color: '#8C6838',
-                marginBottom: '0.3rem'
-              }}>
-                Curated UK Collection
-              </div>
-              <h2 style={{
-                fontSize: 'clamp(1.8rem, 3.5vw, 2.3rem)',
-                lineHeight: 1.2
-              }}>
-                {selectedCategory === 'all' 
-                  ? 'Most Loved Luxury Sofas' 
-                  : `Showing ${selectedCategory.replace('-', ' ').toUpperCase()} Suites`}
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#1C1C1C]">
+                Our Bestsellers
+              </p>
+              <h2 className="text-heading text-3xl md:text-4xl font-semibold text-[#2B2B2B] font-display">
+                Most loved by our customers
               </h2>
-              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginTop: '0.2rem' }}>
-                {filteredProducts.length} handcrafted models available with fast 1–3 day UK delivery &amp; Cash on Delivery.
+              <p className="mt-2 text-lg text-[#6B6B6B]">
+                {filteredProducts.length} {filteredProducts.length === 1 ? 'piece' : 'pieces'} available — filter from the shop page for more precision.
               </p>
             </div>
 
-            {/* Filter and Sort bar */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              {selectedCategory !== 'all' && (
-                <button
-                  onClick={() => setSelectedCategory('all')}
-                  style={{
-                    backgroundColor: 'var(--color-bg-alt)',
-                    border: '1px solid var(--color-border-dark)',
-                    borderRadius: 'var(--radius-full)',
-                    padding: '0.5rem 0.9rem',
-                    fontSize: '0.825rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    color: '#121212'
-                  }}
-                >
-                  Clear Filter ✕
-                </button>
-              )}
-
-              {/* Sort Selector */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                backgroundColor: 'var(--color-bg)',
-                borderRadius: 'var(--radius-full)',
-                padding: '0.45rem 0.9rem',
-                border: '1px solid var(--color-border)'
-              }}>
-                <ArrowUpDown size={14} color="#8A8A8A" />
-                <span style={{ fontSize: '0.8rem', color: '#777' }}>Sort:</span>
-                <select
-                  value={sortOption}
-                  onChange={(e) => setSortOption(e.target.value)}
-                  style={{
-                    border: 'none',
-                    background: 'transparent',
-                    fontSize: '0.85rem',
-                    fontWeight: 600,
-                    color: '#121212',
-                    outline: 'none',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <option value="featured">Best Sellers</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                  <option value="rating">Customer Rating</option>
-                </select>
-              </div>
-            </div>
+            {/* Quick Filter pill reset */}
+            {selectedCategory !== 'all' && (
+              <button
+                type="button"
+                onClick={() => setSelectedCategory('all')}
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#1A1A1A]/20 bg-white px-4 py-2 text-xs font-semibold text-[#1A1A1A] hover:bg-[#F5F5F4] transition-all cursor-pointer self-start md:self-auto"
+              >
+                Showing {selectedCategory.replace('-', ' ')} ✕ Clear
+              </button>
+            )}
           </div>
 
-          {/* Product Grid */}
-          {filteredProducts.length === 0 ? (
-            <div style={{
-              textAlign: 'center',
-              padding: '4rem 2rem',
-              backgroundColor: 'var(--color-bg)',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--color-border)'
-            }}>
-              <h3 style={{ fontSize: '1.3rem', color: '#1A1A1A', marginBottom: '0.5rem' }}>
-                No sofas match your current filter
-              </h3>
-              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                Try clearing your search query or choosing "All Sofas" to see our full catalogue.
-              </p>
-              <button
-                onClick={() => { setSelectedCategory('all'); setSearchQuery(''); }}
-                className="btn-primary"
-              >
-                Reset All Filters
-              </button>
-            </div>
-          ) : (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
-              gap: '2rem'
-            }}>
-              {filteredProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onSelectProduct={(p) => setSelectedProduct(p)}
-                />
-              ))}
-            </div>
-          )}
+          {/* 4-Column Product Grid matching BritSofa */}
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            {filteredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onSelectProduct={(p) => setSelectedProduct(p)}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* 5. The Faneelo Promise (Trust Badges & Cash on Delivery highlights) */}
-      <TrustBadges />
+      {/* 5. Exact Trustpilot, 4 Features & Customer Voices */}
+      <TrustBadges onShopClick={scrollToShop} />
 
-      {/* 6. Verified Customer Testimonials */}
-      <CustomerReviews />
-
-      {/* 7. Footer */}
+      {/* 6. Exact Footer */}
       <Footer
         onSelectCategory={(cat) => {
           setSelectedCategory(cat);
@@ -331,10 +209,10 @@ export default function App() {
         onOpenFaq={() => setIsFaqOpen(true)}
       />
 
-      {/* Floating Elements */}
+      {/* 7. Floating WhatsApp Button matching BritSofa */}
       <WhatsAppButton />
 
-      {/* Interactive Modals */}
+      {/* Modals */}
       <ProductModal
         product={selectedProduct}
         onClose={() => setSelectedProduct(null)}
@@ -354,7 +232,7 @@ export default function App() {
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
         items={cart}
-        onOrderSuccess={handleOrderSuccess}
+        onOrderSuccess={() => saveCart([])}
       />
 
       <AboutModal
