@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Check, Star, Truck, Shield, Banknote, MessageCircle, ShoppingBag, ChevronDown } from 'lucide-react';
 import { STORE_INFO, FALLBACK_IMAGE } from '../data/products';
 
-export function getCleanVariantName(v) {
+function getCleanVariantName(v) {
   if (!v) return 'Standard Suite';
   
   const typeMap = {

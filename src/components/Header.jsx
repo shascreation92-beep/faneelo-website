@@ -8,8 +8,7 @@ export default function Header({
   onSelectCategory, 
   onNavigateHome,
   onOpenAbout,
-  onOpenFaq,
-  onOpenContact
+  onOpenFaq
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 

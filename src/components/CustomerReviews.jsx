@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, CheckCircle, Quote } from 'lucide-react';
+import { Star, CheckCircle } from 'lucide-react';
 import { REVIEWS } from '../data/products';
 
 export default function CustomerReviews() {

@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Plus, Edit2, Trash2, Search, ExternalLink, LogOut, 
   Database, RefreshCw, Upload, X, Check, Layers,
-  Image as ImageIcon, Settings, ChevronDown,
+  Image as ImageIcon, ChevronDown,
   ChevronLeft, ChevronRight, Star, FolderTree, Palette,
   ShoppingBag, Download, Eye, Phone, MapPin, MessageCircle, Calendar, Menu
 } from 'lucide-react';
@@ -23,7 +23,7 @@ const POPULAR_UK_COLORS = [
   'Navy Blue', 'Forest Green', 'Black', 'Mustard', 'Rust', 'Mink', 'Camel'
 ];
 
-export function getColorHex(colorName) {
+function getColorHex(colorName) {
   if (!colorName) return '#A8A29E';
   const c = colorName.toLowerCase().trim();
   if (c.includes('charcoal')) return '#36454F';
@@ -100,11 +100,23 @@ export default function AdminDashboard({ onLogout, onNavigateToStore }) {
   const [colFormImage, setColFormImage] = useState('');
 
   // Supabase Settings state
-  const [supabaseUrlInput, setSupabaseUrlInput] = useState('');
-  const [supabaseKeyInput, setSupabaseKeyInput] = useState('');
+  const [supabaseUrlInput, setSupabaseUrlInput] = useState(() => {
+    try {
+      return localStorage.getItem('faneelo_vite_supabase_url') || '';
+    } catch {
+      return '';
+    }
+  });
+  const [supabaseKeyInput, setSupabaseKeyInput] = useState(() => {
+    try {
+      return localStorage.getItem('faneelo_vite_supabase_anon_key') || '';
+    } catch {
+      return '';
+    }
+  });
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const [prods, cols, ords] = await Promise.all([
         getAllProducts(),
@@ -122,21 +134,26 @@ export default function AdminDashboard({ onLogout, onNavigateToStore }) {
   };
 
   useEffect(() => {
-    loadData();
-    try {
-      const savedUrl = localStorage.getItem('faneelo_vite_supabase_url') || '';
-      const savedKey = localStorage.getItem('faneelo_vite_supabase_anon_key') || '';
-      if (savedUrl) setSupabaseUrlInput(savedUrl);
-      if (savedKey) setSupabaseKeyInput(savedKey);
-    } catch {
-      // ignore
-    }
-  }, []);
+    let active = true;
+    Promise.all([
+      getAllProducts(),
+      getAllCollections(),
+      getAllOrders()
+    ]).then(([prods, cols, ords]) => {
+      if (!active) return;
+      setProducts(prods || []);
+      setCollections(cols || []);
+      setOrders(ords || []);
+      setLoading(false);
+    }).catch((e) => {
+      console.error(e);
+      if (active) setLoading(false);
+    });
 
-  // Reset pagination to page 1 on search or filter change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, selectedCollection]);
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const notify = (msg, type = 'success') => {
     setNotification({ msg, type });
@@ -171,25 +188,23 @@ export default function AdminDashboard({ onLogout, onNavigateToStore }) {
   };
 
   // Filtered Orders
-  const filteredOrders = useMemo(() => {
-    return orders.filter(o => {
-      if (orderStatusFilter !== 'all' && o.status !== orderStatusFilter) {
+  const filteredOrders = orders.filter(o => {
+    if (orderStatusFilter !== 'all' && o.status !== orderStatusFilter) {
+      return false;
+    }
+    if (orderSearch.trim()) {
+      const q = orderSearch.toLowerCase();
+      const matchesRef = (o.orderId || '').toLowerCase().includes(q);
+      const matchesName = (o.customer?.fullName || '').toLowerCase().includes(q);
+      const matchesPhone = (o.customer?.phone || '').toLowerCase().includes(q);
+      const matchesPostcode = (o.customer?.postcode || '').toLowerCase().includes(q);
+      const matchesCity = (o.customer?.city || '').toLowerCase().includes(q);
+      if (!matchesRef && !matchesName && !matchesPhone && !matchesPostcode && !matchesCity) {
         return false;
       }
-      if (orderSearch.trim()) {
-        const q = orderSearch.toLowerCase();
-        const matchesRef = (o.orderId || '').toLowerCase().includes(q);
-        const matchesName = (o.customer?.fullName || '').toLowerCase().includes(q);
-        const matchesPhone = (o.customer?.phone || '').toLowerCase().includes(q);
-        const matchesPostcode = (o.customer?.postcode || '').toLowerCase().includes(q);
-        const matchesCity = (o.customer?.city || '').toLowerCase().includes(q);
-        if (!matchesRef && !matchesName && !matchesPhone && !matchesPostcode && !matchesCity) {
-          return false;
-        }
-      }
-      return true;
-    });
-  }, [orders, orderSearch, orderStatusFilter]);
+    }
+    return true;
+  });
 
   const availableCollectionNames = collections.length > 0 
     ? collections.map(c => c.name) 
@@ -943,7 +958,10 @@ export default function AdminDashboard({ onLogout, onNavigateToStore }) {
                 type="text"
                 placeholder="Search sofas by name or collection..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="admin-search-input font-sans"
               />
             </div>
@@ -951,7 +969,10 @@ export default function AdminDashboard({ onLogout, onNavigateToStore }) {
             <div className="admin-select-container">
               <select
                 value={selectedCollection}
-                onChange={(e) => setSelectedCollection(e.target.value)}
+                onChange={(e) => {
+                  setSelectedCollection(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="admin-select-pill font-sans"
               >
                 <option value="all">All Collections</option>

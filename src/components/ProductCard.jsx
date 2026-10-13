@@ -11,7 +11,6 @@ export default function ProductCard({
   const image = activeVariant?.imageUrl || product.imageUrl;
   const title = activeVariant?.label || product.name;
   const price = Number(activeVariant?.price) || Number(product.price) || 250;
-  const rating = product.rating || 5;
   const soldCount = activeVariant?.soldCount || product.soldCount || 35;
   const collectionName = product.collection || 'Collection';
 

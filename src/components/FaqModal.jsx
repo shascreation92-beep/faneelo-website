@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, HelpCircle, ChevronDown } from 'lucide-react';
+import { X } from 'lucide-react';
 import { FAQS } from '../data/products';
 
 export default function FaqModal({ isOpen, onClose }) {

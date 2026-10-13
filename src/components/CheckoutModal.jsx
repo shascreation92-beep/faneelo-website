@@ -3,6 +3,19 @@ import { X, CheckCircle2, Banknote, ArrowRight, MessageCircle } from 'lucide-rea
 import { STORE_INFO } from '../data/products';
 import { saveOrder } from '../services/orderService';
 
+function createNewOrder(formData, items, totalAmount) {
+  const orderId = `FAN-${Math.floor(100000 + Math.random() * 900000)}`;
+  return {
+    orderId,
+    date: new Date().toLocaleDateString('en-GB'),
+    timestamp: new Date().toISOString(),
+    status: 'Pending Confirmation',
+    items,
+    totalAmount,
+    customer: formData
+  };
+}
+
 export default function CheckoutModal({ isOpen, onClose, items, onOrderSuccess }) {
   const [formData, setFormData] = useState({
     fullName: '',
@@ -17,8 +30,6 @@ export default function CheckoutModal({ isOpen, onClose, items, onOrderSuccess }
 
   const [submittedOrder, setSubmittedOrder] = useState(null);
 
-  if (!isOpen) return null;
-
   const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   const handleSubmit = (e) => {
@@ -28,16 +39,7 @@ export default function CheckoutModal({ isOpen, onClose, items, onOrderSuccess }
       return;
     }
 
-    const orderId = `FAN-${Math.floor(100000 + Math.random() * 900000)}`;
-    const newOrder = {
-      orderId,
-      date: new Date().toLocaleDateString('en-GB'),
-      timestamp: new Date().toISOString(),
-      status: 'Pending Confirmation',
-      items,
-      totalAmount,
-      customer: formData
-    };
+    const newOrder = createNewOrder(formData, items, totalAmount);
 
     // Persist order to storage & cloud
     saveOrder(newOrder);
@@ -58,6 +60,8 @@ export default function CheckoutModal({ isOpen, onClose, items, onOrderSuccess }
     `• Payment: Cash on Delivery\n\n` +
     `Please confirm my delivery dispatch date!`
   ) : '';
+
+  if (!isOpen) return null;
 
   return (
     <div style={{

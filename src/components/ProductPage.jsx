@@ -3,7 +3,7 @@ import { ChevronRight, ChevronDown } from 'lucide-react';
 import { REVIEWS, FALLBACK_IMAGE } from '../data/products';
 import ProductCard from './ProductCard';
 
-export function getCleanVariantName(v) {
+function getCleanVariantName(v) {
   if (!v) return 'Standard Suite';
   
   const typeMap = {
@@ -44,8 +44,8 @@ export default function ProductPage({
   onSelectProduct,
   onAddToCart,
   onCheckout,
-  _onOpenAbout,
-  _onOpenFaq
+  onOpenAbout,
+  onOpenFaq
 }) {
   const variants = product?.variants && product.variants.length > 0 ? product.variants : [
     { type: 'standard', label: 'Standard Suite', price: product?.price || 250, imageUrl: product?.imageUrl || '' }
@@ -65,23 +65,13 @@ export default function ProductPage({
   const [selectedFabric, setSelectedFabric] = useState('Same as Image');
   const [selectedColor, setSelectedColor] = useState('Same as Image');
   const [cornerFacing, setCornerFacing] = useState('Left Hand Facing (LHF)');
-  const [quantity, setQuantity] = useState(1);
+  const quantity = 1;
   const [activeTab, setActiveTab] = useState('description'); // 'description' | 'specifications' | 'reviews'
 
-  // Scroll to top and reset state on product switch or initialVariant update
+  // Scroll to top on mount
   useEffect(() => {
-    if (!product) return;
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    const cur = initialVariant 
-      ? (variants.find(v => v.type === initialVariant.type || v.label === initialVariant.label) || variants[0])
-      : variants[0];
-    setSelectedVariant(cur);
-    setSelectedImage(cur?.imageUrl || product.imageUrl);
-    setSelectedFabric('Same as Image');
-    setSelectedColor('Same as Image');
-    setQuantity(1);
-    setActiveTab('description');
-  }, [product, initialVariant]);
+  }, []);
 
   if (!product) return null;
 
@@ -548,9 +538,18 @@ export default function ProductPage({
           <h2 className="text-2xl sm:text-3xl font-normal text-[#111111] font-display mb-2">
             Why Trust Faneelo
           </h2>
-          <p className="text-xs sm:text-sm text-[#666666] max-w-xl mx-auto mb-3">
+          <p className="text-xs sm:text-sm text-[#666666] max-w-xl mx-auto mb-2">
             Join our community of satisfied customers across the UK. We've earned the trust of families with premium quality and exceptional service.
           </p>
+          {onOpenAbout && (
+            <button
+              type="button"
+              onClick={onOpenAbout}
+              className="text-xs font-semibold text-[#8C6838] hover:underline bg-transparent border-0 cursor-pointer mb-3"
+            >
+              Learn more about our British craftsmanship →
+            </button>
+          )}
 
           <div className="flex items-center justify-center gap-1 text-[#F39C12] mb-8 text-sm">
             <span>★★★★★</span>

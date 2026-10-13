@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Award, ShieldCheck, Heart, Sparkles } from 'lucide-react';
+import { X, Award, ShieldCheck, Heart } from 'lucide-react';
 import { STORE_INFO } from '../data/products';
 
 export default function AboutModal({ isOpen, onClose }) {

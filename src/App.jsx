@@ -26,8 +26,8 @@ export default function App() {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => isAuthenticated());
 
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortOption, setSortOption] = useState('featured');
+  const searchQuery = '';
+  const sortOption = 'featured';
 
   // Load live catalog products from Supabase / localStorage on mount
   const refreshCatalog = async () => {
@@ -42,7 +42,17 @@ export default function App() {
   };
 
   useEffect(() => {
-    refreshCatalog();
+    let active = true;
+    getAllProducts().then((data) => {
+      if (active && data && data.length > 0) {
+        setProductsList(data);
+      }
+    }).catch((err) => {
+      console.error('Failed to load live catalog:', err);
+    });
+    return () => {
+      active = false;
+    };
   }, []);
 
   // Page routing state (1:1 dedicated product page, category page, and admin CMS)
@@ -278,6 +288,7 @@ export default function App() {
       {currentPage.name === 'product' && currentPage.product ? (
         /* Dedicated Product Page (Exact BritSofa Layout with Suggested Products) */
         <ProductPage
+          key={`${currentPage.product.id}-${currentPage.initialVariant?.type || 'default'}`}
           product={currentPage.product}
           initialVariant={currentPage.initialVariant}
           allProducts={productsList}
@@ -295,6 +306,7 @@ export default function App() {
       ) : currentPage.name === 'category' ? (
         /* Dedicated Category / Collections Page (Exact BritSofa Layout with Filters) */
         <CategoryPage
+          key={currentPage.categoryId || 'all'}
           initialCategory={currentPage.categoryId}
           products={productsList}
           onBack={handleNavigateHome}

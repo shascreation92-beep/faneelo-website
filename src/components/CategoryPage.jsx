@@ -24,17 +24,10 @@ export default function CategoryPage({
   const [maxPrice, setMaxPrice] = useState('4000');
   const [sortOption, setSortOption] = useState('featured');
 
-  // Update when initialCategory changes
+  // Scroll to top on mount
   useEffect(() => {
-    if (initialCategory && initialCategory !== 'all') {
-      setSelectedCategory(initialCategory);
-      setSelectedSize(initialCategory);
-    } else {
-      setSelectedCategory('all');
-      setSelectedSize('all');
-    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [initialCategory]);
+  }, []);
 
   // Extract unique collections from products
   const collectionsList = useMemo(() => {
