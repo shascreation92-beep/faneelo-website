@@ -1,32 +1,84 @@
-import React, { useState } from 'react';
-import { X, Check, Star, Truck, Shield, Banknote, MessageCircle, ShoppingBag, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Check, Star, Truck, Shield, Banknote, MessageCircle, ShoppingBag, ChevronDown } from 'lucide-react';
 import { STORE_INFO } from '../data/products';
 
-export default function ProductModal({ product, onClose, onAddToCart, onBuyNow }) {
+export function getCleanVariantName(v) {
+  if (!v) return 'Standard Suite';
+  
+  const typeMap = {
+    '1-seater': '1 Seater',
+    '2-seater': '2 Seater',
+    '3-seater': '3 Seater',
+    '4-seater': '4 Seater',
+    '5-seater': '5 Seater',
+    '6-seater': '6 Seater',
+    '3plus2-seater': '3+2 Seater',
+    'corner-sofa': 'Corner Sofa'
+  };
+
+  if (v.type && typeMap[v.type]) {
+    return typeMap[v.type];
+  }
+
+  const raw = (v.label || v.type || '').toString();
+
+  if (/3\s*\+\s*2/i.test(raw)) return '3+2 Seater';
+  if (/corner/i.test(raw) || /l-shape/i.test(raw)) return 'Corner Sofa';
+  if (/1\s*seater/i.test(raw) || /single/i.test(raw) || /armchair/i.test(raw)) return '1 Seater';
+  if (/2\s*seater/i.test(raw) || /loveseat/i.test(raw)) return '2 Seater';
+  if (/3\s*seater/i.test(raw)) return '3 Seater';
+  if (/4\s*seater/i.test(raw)) return '4 Seater';
+  if (/5\s*seater/i.test(raw)) return '5 Seater';
+  if (/6\s*seater/i.test(raw) || /u-shape/i.test(raw)) return '6 Seater';
+  if (/footstool|pouffe/i.test(raw)) return 'Pouffe / Footstool';
+
+  return raw.split(/[–—|]/)[0].trim() || 'Standard Suite';
+}
+
+export default function ProductModal({ product, onClose, onAddToCart, onCheckout }) {
   if (!product) return null;
 
-  // Selected state
+  // Body scroll lock & ESC key listener
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
+
   const variants = product.variants && product.variants.length > 0 ? product.variants : [
     { type: 'standard', label: 'Standard Suite', price: product.price, imageUrl: product.imageUrl }
   ];
 
   const [selectedVariant, setSelectedVariant] = useState(variants[0]);
   const [selectedImage, setSelectedImage] = useState(selectedVariant.imageUrl || product.imageUrl);
-  const [selectedFabric, setSelectedFabric] = useState(product.fabricList?.[0] || 'Plush Velvet');
-  const [selectedColor, setSelectedColor] = useState(product.colorList?.[0] || 'Charcoal Grey');
+  const [selectedFabric, setSelectedFabric] = useState('Same as Image');
+  const [selectedColor, setSelectedColor] = useState('Same as Image');
   const [cornerFacing, setCornerFacing] = useState('Left Hand Facing (LHF)');
   const [quantity, setQuantity] = useState(1);
 
-  // If variant changes, update current image if variant has its own image
-  const handleVariantChange = (variant) => {
-    setSelectedVariant(variant);
-    if (variant.imageUrl) {
-      setSelectedImage(variant.imageUrl);
+  // When variant changes, update preview image if variant provides one
+  const handleVariantChange = (v) => {
+    setSelectedVariant(v);
+    if (v.imageUrl) {
+      setSelectedImage(v.imageUrl);
     }
   };
 
-  const isCorner = selectedVariant.type?.includes('corner') || product.name?.toLowerCase().includes('corner');
-  const currentPrice = selectedVariant.price || product.price || 550;
+  const selectedCleanName = getCleanVariantName(selectedVariant);
+  const isCorner = selectedVariant.type?.includes('corner') || 
+                   selectedCleanName.toLowerCase().includes('corner') || 
+                   product.name?.toLowerCase().includes('corner');
+
+  const currentPrice = Number(selectedVariant.price) || Number(product.price) || 300;
   const originalPrice = Math.round(currentPrice * 1.25);
 
   const imagesList = product.images && product.images.length > 0 
@@ -37,448 +89,350 @@ export default function ProductModal({ product, onClose, onAddToCart, onBuyNow }
   const waText = encodeURIComponent(
     `Hello Faneelo! I would like to order:\n\n` +
     `• Sofa: ${product.name}\n` +
-    `• Size / Variant: ${selectedVariant.label || selectedVariant.type}\n` +
+    `• Size / Variant: ${selectedCleanName}\n` +
     `• Fabric: ${selectedFabric}\n` +
     `• Colour: ${selectedColor}\n` +
     `${isCorner ? `• Facing: ${cornerFacing}\n` : ''}` +
-    `• Price: £${currentPrice}\n` +
+    `• Quantity: ${quantity}\n` +
+    `• Price: £${currentPrice * quantity}\n` +
     `• Payment: Cash on Delivery\n\n` +
     `Can you confirm delivery availability for my UK postcode?`
   );
 
-  const handleAddToBasket = () => {
-    onAddToCart({
-      productId: product.id,
-      name: product.name,
-      variant: selectedVariant.label || selectedVariant.type,
-      price: currentPrice,
-      image: selectedImage,
-      fabric: selectedFabric,
-      color: selectedColor,
-      facing: isCorner ? cornerFacing : null,
-      quantity: quantity
-    });
+  const createCartItem = () => ({
+    productId: product.id,
+    name: product.name,
+    variant: selectedCleanName,
+    price: currentPrice,
+    image: selectedImage,
+    fabric: selectedFabric,
+    color: selectedColor,
+    facing: isCorner ? cornerFacing : null,
+    quantity: quantity
+  });
+
+  const handleAdd = () => {
+    onAddToCart(createCartItem());
+  };
+
+  const handleBuyNow = () => {
+    const item = createCartItem();
+    if (onCheckout) {
+      onCheckout(item);
+    } else {
+      onAddToCart(item);
+    }
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(18, 18, 18, 0.75)',
-      backdropFilter: 'blur(6px)',
-      zIndex: 50,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '1rem',
-      overflowY: 'auto'
-    }}>
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/65 backdrop-blur-sm transition-opacity"
+      onClick={onClose}
+    >
       <div 
-        className="surface-card"
-        style={{
-          width: '100%',
-          maxWidth: '1000px',
-          maxHeight: '92vh',
-          backgroundColor: '#FFFFFF',
-          borderRadius: 'var(--radius-xl)',
-          overflowY: 'auto',
-          position: 'relative',
-          padding: 0,
-          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.35)',
-          animation: 'fadeIn 0.25s ease'
-        }}
+        className="relative flex flex-col md:flex-row w-full max-w-5xl max-h-[92vh] bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-[#E7E5E4] overflow-hidden text-[#1C1C1C]"
+        style={{ fontFamily: "'Manrope', -apple-system, BlinkMacSystemFont, sans-serif" }}
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
+        {/* Floating Close Button in Top Right */}
         <button
+          type="button"
           onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: '1rem',
-            right: '1rem',
-            zIndex: 10,
-            width: '38px',
-            height: '38px',
-            borderRadius: '50%',
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            border: '1px solid var(--color-border)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            boxShadow: 'var(--shadow-sm)'
-          }}
-          aria-label="Close product options"
+          style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 30 }}
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-white/95 border border-[#E7E5E4] text-[#78716C] hover:text-[#1C1C1C] hover:bg-white shadow-sm transition-all cursor-pointer p-0"
+          aria-label="Close product customizer"
         >
-          <X size={20} color="#121212" />
+          <X size={18} />
         </button>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-          gap: '2rem',
-          padding: '2rem'
-        }}>
-          {/* Left Column: Image Showcase & Thumbnails */}
+        {/* LEFT COLUMN: Image Showcase, Thumbnails & COD Guarantee */}
+        <div className="w-full md:w-[45%] bg-[#FAFAF9] p-5 sm:p-6 flex flex-col justify-between border-b md:border-b-0 md:border-r border-[#E7E5E4] overflow-y-auto">
           <div>
-            <div style={{
-              width: '100%',
-              height: '380px',
-              backgroundColor: '#F3F2EE',
-              borderRadius: 'var(--radius-lg)',
-              overflow: 'hidden',
-              position: 'relative',
-              marginBottom: '1rem',
-              border: '1px solid var(--color-border)'
-            }}>
+            {/* Main Image Frame */}
+            <div className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden bg-[#F5F5F4] border border-[#E7E5E4] shadow-xs">
               <img 
                 src={selectedImage} 
                 alt={product.name}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover'
-                }}
+                className="h-full w-full object-cover transition-transform duration-300"
               />
-              
-              <div style={{
-                position: 'absolute',
-                top: '12px',
-                left: '12px'
-              }}>
-                <span className="badge-gold">
-                  {selectedVariant.label || 'Selected Model'}
+
+              {/* Clean Size Badge */}
+              <div style={{ position: 'absolute', top: '12px', left: '12px', zIndex: 10 }}>
+                <span className="rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-[#1C1C1C] shadow-sm border border-[#E7E5E4] backdrop-blur-sm">
+                  {selectedCleanName}
                 </span>
               </div>
             </div>
 
-            {/* Thumbnail Gallery */}
+            {/* Thumbnail Gallery Strip (Strict 56x56 square thumbnails) */}
             {imagesList.length > 1 && (
-              <div style={{
-                display: 'flex',
-                gap: '0.6rem',
-                overflowX: 'auto',
-                paddingBottom: '0.5rem'
-              }}>
+              <div 
+                className="mt-3.5 pb-1"
+                style={{ 
+                  display: 'flex', 
+                  gap: '8px', 
+                  overflowX: 'auto', 
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none'
+                }}
+              >
                 {imagesList.map((img, i) => (
                   <button
                     key={i}
+                    type="button"
                     onClick={() => setSelectedImage(img)}
-                    style={{
-                      width: '64px',
-                      height: '64px',
-                      borderRadius: 'var(--radius-md)',
-                      overflow: 'hidden',
-                      border: selectedImage === img ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-                      padding: 0,
-                      cursor: 'pointer',
+                    style={{ 
+                      width: '56px', 
+                      height: '56px', 
                       flexShrink: 0,
-                      backgroundColor: '#F3F2EE'
+                      padding: 0,
+                      borderRadius: '12px',
+                      overflow: 'hidden'
                     }}
+                    className={`border cursor-pointer transition-all bg-[#F5F5F4] ${
+                      selectedImage === img 
+                        ? 'border-2 border-[#1C1C1C] shadow-xs ring-1 ring-[#1C1C1C]' 
+                        : 'border-[#E7E5E4] opacity-75 hover:opacity-100 hover:border-[#1C1C1C]/40'
+                    }`}
                   >
-                    <img src={img} alt={`Angle ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img 
+                      src={img} 
+                      alt={`View ${i + 1}`} 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} 
+                    />
                   </button>
                 ))}
               </div>
             )}
-
-            {/* Inspection Guarantee Callout */}
-            <div style={{
-              marginTop: '1.25rem',
-              backgroundColor: '#F7F5F0',
-              border: '1px solid #E5DFD5',
-              borderRadius: 'var(--radius-md)',
-              padding: '1rem',
-              fontSize: '0.825rem'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem', color: '#15803D', fontWeight: 700 }}>
-                <Banknote size={16} />
-                <span>100% Cash on Delivery Guarantee</span>
-              </div>
-              <p style={{ color: '#555', lineHeight: 1.5 }}>
-                Our 2-man British delivery crew will bring the sofa into your room of choice, unwrap it, and allow you to inspect the fabric and comfort before paying. Zero risk.
-              </p>
-            </div>
           </div>
 
-          {/* Right Column: Customizer & Order Options */}
+          {/* Cash on Delivery Trust Guarantee */}
+          <div className="mt-3.5 rounded-xl bg-white p-3.5 border border-[#E7E5E4] shadow-xs">
+            <div className="flex items-center gap-2 text-[#15803D] font-bold text-xs sm:text-sm mb-1">
+              <Banknote size={16} />
+              <span>100% Cash on Delivery Guarantee</span>
+            </div>
+            <p className="text-[11px] sm:text-xs text-[#6B6B6B] leading-relaxed m-0">
+              Our 2-man British delivery crew will bring the sofa into your room of choice, unwrap it, and allow you to inspect the fabric and comfort before paying. Zero risk.
+            </p>
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN: Customizer, Size Pills, Selectors & Actions */}
+        <div className="w-full md:w-[55%] p-5 sm:p-6 sm:pl-7 flex flex-col justify-between overflow-y-auto">
           <div>
-            <div style={{
-              fontSize: '0.8rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: '#8C6838',
-              marginBottom: '0.3rem'
-            }}>
-              {product.collection} British Atelier
+            {/* Brand / Atelier Tag */}
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C6838]">
+                {product.collection || 'British Atelier'} Handcrafted Collection
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#ECFDF5] px-2.5 py-0.5 text-[11px] font-semibold text-[#059669]">
+                <Check size={12} strokeWidth={3} /> In Stock UK
+              </span>
             </div>
 
-            <h2 style={{
-              fontSize: '1.75rem',
-              lineHeight: 1.25,
-              fontWeight: 700,
-              color: '#121212',
-              marginBottom: '0.6rem'
-            }}>
+            {/* Product Title */}
+            <h2 className="text-xl sm:text-2xl font-bold leading-tight text-[#1C1C1C] mb-1.5 font-display">
               {product.name}
             </h2>
 
-            {/* Ratings & Orders */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1.2rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+            {/* Star Rating & Sold Count */}
+            <div className="flex items-center gap-2 mb-2.5">
+              <div className="flex gap-0.5">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={15} fill="#C5A880" color="#C5A880" />
+                  <Star key={i} size={14} fill="#1C1C1C" stroke="#1C1C1C" />
                 ))}
               </div>
-              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1A1A1A' }}>
-                4.9 / 5.0
-              </span>
-              <span style={{ fontSize: '0.8rem', color: '#777' }}>
-                ({product.soldCount || 100}+ Handcrafted in UK)
+              <span className="text-xs font-bold text-[#1C1C1C]">4.9 / 5.0</span>
+              <span className="text-xs text-[#78716C]">
+                ({product.soldCount || 85}+ UK Deliveries)
               </span>
             </div>
 
-            {/* Price Banner */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'baseline',
-              gap: '0.75rem',
-              marginBottom: '1.5rem',
-              paddingBottom: '1rem',
-              borderBottom: '1px solid var(--color-border)'
-            }}>
-              <span style={{
-                fontSize: '2.1rem',
-                fontWeight: 800,
-                color: '#121212',
-                fontFamily: 'var(--font-sans)'
-              }}>
+            {/* Price Row */}
+            <div className="flex items-baseline gap-2.5 pb-2.5 mb-3.5 border-b border-[#E7E5E4]">
+              <span className="text-2xl sm:text-3xl font-extrabold text-[#1C1C1C] tabular-nums">
                 £{currentPrice.toLocaleString('en-GB')}
               </span>
-              <span style={{
-                fontSize: '1.1rem',
-                color: '#A09C94',
-                textDecoration: 'line-through'
-              }}>
+              <span className="text-sm sm:text-base text-[#A8A29E] line-through">
                 £{originalPrice.toLocaleString('en-GB')}
               </span>
-              <span className="badge-gold">
+              <span className="rounded-full bg-[#FEF3C7] px-2.5 py-0.5 text-xs font-bold text-[#92400E]">
                 Save £{originalPrice - currentPrice}
               </span>
             </div>
 
-            {/* 1. Size / Configuration Selector */}
-            <div style={{ marginBottom: '1.4rem' }}>
-              <div style={{
-                fontSize: '0.85rem',
-                fontWeight: 700,
-                color: '#1A1A1A',
-                marginBottom: '0.6rem',
-                display: 'flex',
-                justifyContent: 'space-between'
-              }}>
-                <span>1. Select Size / Configuration:</span>
-                <span style={{ color: '#8C6838' }}>{selectedVariant.label || selectedVariant.type}</span>
+            {/* 1. Size / Configuration (Clean BritSofa Pills) */}
+            <div className="mb-3.5">
+              <div className="flex items-center justify-between text-xs font-semibold mb-2">
+                <span className="text-[#1C1C1C]">
+                  Size : <span className="font-bold text-[#1C1C1C]">{selectedCleanName}</span>
+                </span>
+                <span className="text-[#8C6838] font-bold">
+                  £{currentPrice}
+                </span>
               </div>
 
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
-                gap: '0.5rem'
-              }}>
+              <div className="flex flex-wrap gap-2">
                 {variants.map((v, idx) => {
                   const isCur = (selectedVariant.type === v.type && selectedVariant.label === v.label);
+                  const name = getCleanVariantName(v);
                   return (
                     <button
                       key={idx}
+                      type="button"
                       onClick={() => handleVariantChange(v)}
-                      style={{
-                        padding: '0.65rem 0.5rem',
-                        borderRadius: 'var(--radius-md)',
-                        border: isCur ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-                        backgroundColor: isCur ? 'var(--color-bg-alt)' : '#FFFFFF',
-                        cursor: 'pointer',
-                        textAlign: 'center',
-                        transition: 'all 0.2s'
-                      }}
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer border flex items-center gap-1.5 ${
+                        isCur
+                          ? 'border-2 border-[#1C1C1C] bg-white text-[#1C1C1C] shadow-xs'
+                          : 'border-[#E6E6E6] bg-white text-[#555555] hover:border-[#1C1C1C]/60 hover:text-[#1C1C1C]'
+                      }`}
                     >
-                      <div style={{ fontSize: '0.825rem', fontWeight: isCur ? 700 : 500, color: '#1A1A1A' }}>
-                        {v.label || v.type}
-                      </div>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#8C6838', marginTop: '2px' }}>
-                        £{v.price}
-                      </div>
+                      <span>{name}</span>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Corner Facing option if Corner Suite */}
+            {/* 2. Corner Facing Orientation (if corner suite) */}
             {isCorner && (
-              <div style={{ marginBottom: '1.4rem' }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1A1A1A', marginBottom: '0.5rem' }}>
-                  2. Corner Facing Orientation:
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
-                  {['Left Hand Facing (LHF)', 'Right Hand Facing (RHF)'].map((facing) => (
-                    <button
-                      key={facing}
-                      onClick={() => setCornerFacing(facing)}
-                      style={{
-                        padding: '0.6rem',
-                        borderRadius: 'var(--radius-md)',
-                        border: cornerFacing === facing ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-                        backgroundColor: cornerFacing === facing ? 'var(--color-bg-alt)' : '#FFFFFF',
-                        cursor: 'pointer',
-                        fontSize: '0.825rem',
-                        fontWeight: cornerFacing === facing ? 700 : 500
-                      }}
-                    >
-                      {facing}
-                    </button>
-                  ))}
+              <div className="mb-3.5">
+                <label className="block text-xs font-semibold text-[#1C1C1C] mb-1.5">
+                  Orientation: <span className="font-bold text-[#1C1C1C]">{cornerFacing}</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {['Left Hand Facing (LHF)', 'Right Hand Facing (RHF)'].map((facing) => {
+                    const isCur = cornerFacing === facing;
+                    return (
+                      <button
+                        key={facing}
+                        type="button"
+                        onClick={() => setCornerFacing(facing)}
+                        className={`py-1.5 px-3 rounded-xl text-xs font-semibold border transition-all cursor-pointer text-center ${
+                          isCur
+                            ? 'border-2 border-[#1C1C1C] bg-white text-[#1C1C1C] shadow-xs'
+                            : 'border-[#E6E6E6] bg-white text-[#555555] hover:border-[#1C1C1C]/40'
+                        }`}
+                      >
+                        {facing}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
-            {/* 3. Fabric Selector */}
-            <div style={{ marginBottom: '1.4rem' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1A1A1A', marginBottom: '0.5rem' }}>
-                Fabric Selection: <span style={{ fontWeight: 500, color: '#666' }}>({selectedFabric})</span>
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-                {product.fabricList.map((fabric) => (
-                  <button
-                    key={fabric}
-                    onClick={() => setSelectedFabric(fabric)}
-                    style={{
-                      padding: '0.45rem 0.85rem',
-                      borderRadius: 'var(--radius-full)',
-                      border: selectedFabric === fabric ? '1.5px solid var(--color-primary)' : '1px solid var(--color-border)',
-                      backgroundColor: selectedFabric === fabric ? 'var(--color-primary)' : '#FFFFFF',
-                      color: selectedFabric === fabric ? '#FFFFFF' : '#333',
-                      fontSize: '0.8rem',
-                      fontWeight: 600,
-                      cursor: 'pointer'
-                    }}
+            {/* 3. Colour & Fabric Dropdowns matching BritSofa */}
+            <div className="grid grid-cols-2 gap-3 mb-3.5">
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] mb-1">
+                  COLOUR
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedColor}
+                    onChange={(e) => setSelectedColor(e.target.value)}
+                    className="w-full appearance-none rounded-xl border border-[#E6E6E6] bg-white px-3 py-2 pr-7 text-xs font-semibold text-[#1C1C1C] focus:border-[#1C1C1C] focus:outline-none transition cursor-pointer shadow-xs"
                   >
-                    {fabric}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 4. Color Swatch Selector */}
-            <div style={{ marginBottom: '1.8rem' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1A1A1A', marginBottom: '0.5rem' }}>
-                Colour Choice: <span style={{ fontWeight: 600, color: '#8C6838' }}>{selectedColor}</span>
-              </div>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))',
-                gap: '0.4rem',
-                maxHeight: '130px',
-                overflowY: 'auto',
-                padding: '4px',
-                border: '1px solid #F1EFEA',
-                borderRadius: 'var(--radius-md)'
-              }}>
-                {product.colorList.map((col) => (
-                  <button
-                    key={col}
-                    onClick={() => setSelectedColor(col)}
-                    style={{
-                      padding: '0.4rem 0.5rem',
-                      borderRadius: '6px',
-                      border: selectedColor === col ? '1.5px solid var(--color-primary)' : '1px solid var(--color-border)',
-                      backgroundColor: selectedColor === col ? '#121212' : '#FAFAF9',
-                      color: selectedColor === col ? '#FFFFFF' : '#222',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      textAlign: 'center'
-                    }}
-                  >
-                    {col}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Call To Action Buttons */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.75rem' }}>
-                {/* Quantity */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  border: '1px solid var(--color-border-dark)',
-                  borderRadius: 'var(--radius-full)',
-                  padding: '0.2rem 0.6rem'
-                }}>
-                  <button 
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', padding: '0 0.4rem' }}
-                  >
-                    −
-                  </button>
-                  <span style={{ fontWeight: 700, padding: '0 0.5rem', minWidth: '24px', textAlign: 'center' }}>
-                    {quantity}
-                  </span>
-                  <button 
-                    onClick={() => setQuantity(quantity + 1)}
-                    style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', padding: '0 0.4rem' }}
-                  >
-                    +
-                  </button>
+                    <option value="Same as Image">Same as Image</option>
+                    {(product.colorList || []).map((col) => (
+                      <option key={col} value={col}>{col}</option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#78716C]">
+                    <ChevronDown size={14} />
+                  </div>
                 </div>
+              </div>
 
-                <button
-                  onClick={handleAddToBasket}
-                  className="btn-primary"
-                  style={{ width: '100%', fontSize: '0.95rem' }}
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] mb-1">
+                  FABRIC TYPE
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedFabric}
+                    onChange={(e) => setSelectedFabric(e.target.value)}
+                    className="w-full appearance-none rounded-xl border border-[#E6E6E6] bg-white px-3 py-2 pr-7 text-xs font-semibold text-[#1C1C1C] focus:border-[#1C1C1C] focus:outline-none transition cursor-pointer shadow-xs"
+                  >
+                    <option value="Same as Image">Same as Image</option>
+                    {(product.fabricList || []).map((fab) => (
+                      <option key={fab} value={fab}>{fab}</option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-[#78716C]">
+                    <ChevronDown size={14} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ACTIONS & GUARANTEES BOTTOM */}
+          <div className="pt-1">
+            {/* Quantity + Add to Cart & Checkout buttons */}
+            <div className="flex flex-col sm:flex-row gap-2 mb-2">
+              {/* Quantity Selector */}
+              <div className="flex items-center justify-between border border-[#E6E6E6] rounded-full px-3 py-1 bg-white shrink-0 sm:w-26">
+                <button 
+                  type="button"
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="border-0 bg-transparent text-base font-bold cursor-pointer text-[#78716C] hover:text-[#1C1C1C] px-1"
                 >
-                  <ShoppingBag size={18} />
-                  <span>Add To Basket • £{(currentPrice * quantity).toLocaleString('en-GB')}</span>
+                  −
+                </button>
+                <span className="text-xs sm:text-sm font-bold text-[#1C1C1C] tabular-nums">
+                  {quantity}
+                </span>
+                <button 
+                  type="button"
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="border-0 bg-transparent text-base font-bold cursor-pointer text-[#78716C] hover:text-[#1C1C1C] px-1"
+                >
+                  +
                 </button>
               </div>
 
-              {/* Direct WhatsApp Order */}
-              <a
-                href={`https://wa.me/${STORE_INFO.whatsapp}?text=${waText}`}
-                target="_blank"
-                rel="noreferrer"
-                className="btn-whatsapp"
-                style={{ width: '100%', textAlign: 'center' }}
+              {/* Add to Basket */}
+              <button
+                type="button"
+                onClick={handleAdd}
+                className="flex-1 py-2.5 px-4 rounded-full bg-[#1C1C1C] text-white text-xs sm:text-sm font-bold hover:bg-[#0A0A0A] transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer border-0"
               >
-                <MessageCircle size={18} />
-                <span>Instant WhatsApp Order (Inspect First, Pay Later)</span>
-              </a>
+                <ShoppingBag size={15} />
+                <span>Add to Cart • £{(currentPrice * quantity).toLocaleString('en-GB')}</span>
+              </button>
+
+              {/* Checkout COD */}
+              <button
+                type="button"
+                onClick={handleBuyNow}
+                className="py-2.5 px-4 rounded-full bg-white text-[#1C1C1C] text-xs sm:text-sm font-bold border-2 border-[#1C1C1C] hover:bg-[#F5F5F4] transition-all flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap"
+              >
+                <span>Checkout (COD)</span>
+              </button>
             </div>
 
-            {/* Quick Guarantees Footer */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '0.75rem',
-              marginTop: '1.25rem',
-              paddingTop: '1rem',
-              borderTop: '1px solid var(--color-border)',
-              fontSize: '0.78rem',
-              color: 'var(--color-text-muted)'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Truck size={15} color="#15803D" />
-                <span>1–3 Working Days UK</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Shield size={15} color="#8C6838" />
-                <span>5-Year Frame Guarantee</span>
-              </div>
+            {/* Direct WhatsApp Order */}
+            <a
+              href={`https://wa.me/${STORE_INFO.whatsapp}?text=${waText}`}
+              target="_blank"
+              rel="noreferrer"
+              className="w-full py-2 px-4 rounded-full bg-[#25D366] hover:bg-[#20BA5A] text-white text-xs font-bold flex items-center justify-center gap-2 transition-all no-underline shadow-xs cursor-pointer mb-2.5"
+            >
+              <MessageCircle size={15} />
+              <span>Order on WhatsApp (Inspect First, Pay Later)</span>
+            </a>
+
+            {/* Quick Guarantees Footer Strip */}
+            <div className="flex items-center justify-between text-[11px] text-[#78716C] pt-2 border-t border-[#E7E5E4]">
+              <span className="flex items-center gap-1.5">
+                <Truck size={13} className="text-[#15803D]" /> Free 1–3 Day UK Delivery
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Shield size={13} className="text-[#8C6838]" /> 5-Year Frame Guarantee
+              </span>
             </div>
           </div>
         </div>

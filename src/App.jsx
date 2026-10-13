@@ -217,6 +217,11 @@ export default function App() {
         product={selectedProduct}
         onClose={() => setSelectedProduct(null)}
         onAddToCart={handleAddToCart}
+        onCheckout={(item) => {
+          handleAddToCart(item);
+          setIsCartOpen(false);
+          setIsCheckoutOpen(true);
+        }}
       />
 
       <CartDrawer
