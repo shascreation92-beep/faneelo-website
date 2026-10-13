@@ -228,7 +228,7 @@ export default function CheckoutModal({ isOpen, onClose, items, onOrderSuccess }
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {/* Full Name & Phone */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, marginBottom: '0.35rem' }}>
                     Full Name *
@@ -316,7 +316,7 @@ export default function CheckoutModal({ isOpen, onClose, items, onOrderSuccess }
               </div>
 
               {/* City & Postcode */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.825rem', fontWeight: 700, marginBottom: '0.35rem' }}>
                     City / Town *

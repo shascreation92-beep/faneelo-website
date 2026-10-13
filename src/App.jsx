@@ -343,7 +343,8 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => handleOpenCategory('all')}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[#1A1A1A] bg-[#1A1A1A] px-5 py-2.5 text-xs font-semibold text-white hover:bg-black transition-all cursor-pointer self-start md:self-auto"
+                  style={{ backgroundColor: '#1C1C1C', color: '#ffffff', borderColor: '#1C1C1C' }}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#1C1C1C] bg-[#1C1C1C] px-5 py-2.5 text-xs font-semibold text-white hover:bg-black transition-all cursor-pointer self-start md:self-auto"
                 >
                   View All Collections →
                 </button>
