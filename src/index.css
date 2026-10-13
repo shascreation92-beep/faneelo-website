@@ -344,6 +344,12 @@
   color: #C47C5A !important;
 }
 
+/* Disable Browser Overscroll History Navigation Gestures (Prevents Stuck Chrome Blue Back Arrow) */
+html, body {
+  overscroll-behavior: none !important;
+  overscroll-behavior-x: none !important;
+}
+
 /* Explicit Responsive Sidebar Layout */
 .admin-layout-container {
   display: flex !important;
@@ -351,6 +357,8 @@
   min-height: 100vh !important;
   background-color: #F8F7F4 !important;
   color: #111111 !important;
+  overscroll-behavior: none !important;
+  overscroll-behavior-x: none !important;
 }
 
 @media (min-width: 1024px) {
