@@ -45,6 +45,15 @@ export default function Footer({ onSelectCategory, onOpenAbout, onOpenFaq }) {
               <li>
                 <button
                   type="button"
+                  onClick={() => onSelectCategory('3plus2-seater')}
+                  className="text-white/75 transition-colors hover:text-white bg-transparent border-0 cursor-pointer p-0 text-left"
+                >
+                  3+2 Seater Sofas
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
                   onClick={() => onSelectCategory('corner-sofa')}
                   className="text-white/75 transition-colors hover:text-white bg-transparent border-0 cursor-pointer p-0 text-left"
                 >
@@ -54,19 +63,19 @@ export default function Footer({ onSelectCategory, onOpenAbout, onOpenFaq }) {
               <li>
                 <button
                   type="button"
-                  onClick={() => onSelectCategory('5-seater')}
+                  onClick={() => onSelectCategory('u-shape-sofa')}
                   className="text-white/75 transition-colors hover:text-white bg-transparent border-0 cursor-pointer p-0 text-left"
                 >
-                  5 Seater Sofas
+                  U Shape Sofas
                 </button>
               </li>
               <li>
                 <button
                   type="button"
-                  onClick={() => onSelectCategory('3plus2-seater')}
+                  onClick={() => onSelectCategory('leather-sofa')}
                   className="text-white/75 transition-colors hover:text-white bg-transparent border-0 cursor-pointer p-0 text-left"
                 >
-                  3+2 Seater Packages
+                  Leather Sofas
                 </button>
               </li>
               <li>

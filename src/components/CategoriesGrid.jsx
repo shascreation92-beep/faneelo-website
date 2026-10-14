@@ -2,52 +2,28 @@ import React from 'react';
 
 const CATEGORIES = [
   {
-    id: '1-seater',
-    name: '1 Seater',
-    description: 'Shop this size',
-    image: 'https://backend.britsofa.co.uk/uploads/1778712929585-1-seater.jfif.jpg'
-  },
-  {
-    id: '2-seater',
-    name: '2 Seater',
-    description: 'Shop this size',
-    image: 'https://backend.britsofa.co.uk/uploads/1778712929586-2-seater-sofa.webp'
-  },
-  {
-    id: '3-seater',
-    name: '3 Seater',
-    description: 'Shop this size',
-    image: 'https://backend.britsofa.co.uk/uploads/1778435615507-3-seater-Sofa.jpg'
-  },
-  {
-    id: '4-seater',
-    name: '4 Seater',
-    description: 'Shop this size',
-    image: 'https://backend.britsofa.co.uk/uploads/1778710605675-4-seater.jpg'
-  },
-  {
-    id: '5-seater',
-    name: '5 Seater',
-    description: 'Shop this size',
-    image: 'https://backend.britsofa.co.uk/uploads/1778712929588-5-seater-sofa.webp'
-  },
-  {
-    id: '6-seater',
-    name: '6 Seater',
-    description: 'Shop this size',
-    image: 'https://backend.britsofa.co.uk/uploads/1778712204822-6-Seater-Sofa.jfif.jpg'
-  },
-  {
     id: '3plus2-seater',
-    name: '3+2 Seater',
-    description: 'Shop this size',
+    name: '3+2 Seater Sofas',
+    description: 'Matching Living Room Packages',
     image: 'https://backend.britsofa.co.uk/uploads/1778439610804-3-2-sofa.webp'
   },
   {
     id: 'corner-sofa',
-    name: 'Corner Sofa',
-    description: 'Shop this size',
+    name: 'Corner Sofas',
+    description: 'L-Shaped & Chaise Suites',
     image: 'https://backend.britsofa.co.uk/uploads/1778435615509-Corner-Sofa.jpeg'
+  },
+  {
+    id: 'u-shape-sofa',
+    name: 'U Shape Sofas',
+    description: 'Grand Family Living Suites',
+    image: 'https://backend.britsofa.co.uk/uploads/1778712204822-6-Seater-Sofa.jfif.jpg'
+  },
+  {
+    id: 'leather-sofa',
+    name: 'Leather Sofas',
+    description: 'Timeless Handcrafted Luxury',
+    image: 'https://backend.britsofa.co.uk/uploads/1778710605675-4-seater.jpg'
   }
 ];
 

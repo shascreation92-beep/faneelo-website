@@ -36,6 +36,14 @@ export const STORE_INFO = {
 
 export const CATEGORIES = [
   {
+    id: '3plus2-seater',
+    name: '3+2 Seater Sofas',
+    tagline: 'Matching Living Room Packages',
+    image: 'https://backend.britsofa.co.uk/uploads/1778439610804-3-2-sofa.webp',
+    badge: 'Best Value',
+    startingPrice: 500
+  },
+  {
     id: 'corner-sofa',
     name: 'Corner Sofas',
     tagline: 'L-Shaped & Chaise Suites',
@@ -44,60 +52,20 @@ export const CATEGORIES = [
     startingPrice: 550
   },
   {
-    id: '3plus2-seater',
-    name: '3+2 Seater Sets',
-    tagline: 'Matching Living Room Packages',
-    image: 'https://backend.britsofa.co.uk/uploads/1778439610804-3-2-sofa.webp',
-    badge: 'Best Value',
-    startingPrice: 500
-  },
-  {
-    id: '3-seater',
-    name: '3 Seater Sofas',
-    tagline: 'Classic Family Seating',
-    image: 'https://backend.britsofa.co.uk/uploads/1778435615507-3-seater-Sofa.jpg',
-    badge: 'Trending',
-    startingPrice: 350
-  },
-  {
-    id: '2-seater',
-    name: '2 Seater Sofas',
-    tagline: 'Cosy Loveseats & Compact Flats',
-    image: 'https://backend.britsofa.co.uk/uploads/1778712204820-2-Seater-Sofa.jfif.jpg',
-    badge: null,
-    startingPrice: 300
-  },
-  {
-    id: '4-seater',
-    name: '4 Seater Sofas',
-    tagline: 'Expansive Modern Lounges',
-    image: 'https://backend.britsofa.co.uk/uploads/1778710605675-4-seater.jpg',
-    badge: null,
-    startingPrice: 400
-  },
-  {
-    id: '5-seater',
-    name: '5 Seater Sofas',
-    tagline: 'Generous Luxury Seating',
-    image: 'https://backend.britsofa.co.uk/uploads/1778712929588-5-seater-sofa.webp',
-    badge: 'Spacious',
-    startingPrice: 550
-  },
-  {
-    id: '6-seater',
-    name: '6 Seater & U-Shape',
-    tagline: 'Grand Family Suites',
+    id: 'u-shape-sofa',
+    name: 'U Shape Sofas',
+    tagline: 'Grand Family Living Suites',
     image: 'https://backend.britsofa.co.uk/uploads/1778712204822-6-Seater-Sofa.jfif.jpg',
     badge: 'Grand Luxury',
-    startingPrice: 700
+    startingPrice: 650
   },
   {
-    id: 'modular-boucle',
-    name: 'Modular & Bouclé',
-    tagline: 'Cloud-Like Textured Comfort',
-    image: 'https://backend.britsofa.co.uk/uploads/1791380170173-3.png',
-    badge: 'Design Icon',
-    startingPrice: 750
+    id: 'leather-sofa',
+    name: 'Leather Sofas',
+    tagline: 'Timeless Handcrafted Luxury',
+    image: 'https://backend.britsofa.co.uk/uploads/1778710605675-4-seater.jpg',
+    badge: 'Classic Heritage',
+    startingPrice: 400
   }
 ];
 

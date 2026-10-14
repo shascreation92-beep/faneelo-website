@@ -77,6 +77,18 @@ export default function CategoryPage({
           const has32 = !!activeVariant;
           const nameHas32 = p.name.toLowerCase().includes('3+2') || p.name.toLowerCase().includes('3 plus 2');
           if (!has32 && !nameHas32) return;
+        } else if (targetSize === 'u-shape-sofa' || targetSize === 'u-shape' || targetSize === '6-seater') {
+          activeVariant = (p.variants || []).find(v => v.type === '6-seater' || v.type === 'u-shape' || (v.label && v.label.toLowerCase().includes('u-shape')));
+          const hasUShape = !!activeVariant || p.name.toLowerCase().includes('u-shape') || p.name.toLowerCase().includes('u shaped') || p.name.toLowerCase().includes('6 seater');
+          if (!hasUShape) return;
+          if (!activeVariant && (p.variants || []).length > 0) {
+            activeVariant = p.variants.find(v => v.type === '6-seater') || p.variants[0];
+          }
+        } else if (targetSize === 'leather-sofa' || targetSize === 'leather') {
+          const text = (p.name + ' ' + (p.description || '') + ' ' + (p.fabric || '')).toLowerCase();
+          const hasLeather = text.includes('leather') || text.includes('chesterfield');
+          if (!hasLeather) return;
+          activeVariant = p.variants?.[0] || null;
         } else {
           activeVariant = (p.variants || []).find(v => v.type === targetSize);
           if (!activeVariant) return;
@@ -202,16 +214,11 @@ export default function CategoryPage({
                 onChange={(e) => handleSizeChange(e.target.value)}
                 className="w-full rounded-xl border border-[#D6D3D1] bg-white px-3 py-2 text-xs font-medium text-[#1C1C1C] focus:border-[#1C1C1C] focus:outline-none transition cursor-pointer shadow-2xs font-sans"
               >
-                <option value="all">All sizes</option>
-                <option value="1-seater">1 Seater</option>
-                <option value="2-seater">2 Seater</option>
-                <option value="3-seater">3 Seater</option>
-                <option value="4-seater">4 Seater</option>
-                <option value="5-seater">5 Seater</option>
-                <option value="6-seater">6 Seater</option>
-                <option value="3plus2-seater">3+2 Seater</option>
-                <option value="corner-sofa">Corner Sofa</option>
-                <option value="modular-boucle">Modular & Bouclé</option>
+                <option value="all">All categories</option>
+                <option value="3plus2-seater">3+2 Seater Sofas</option>
+                <option value="corner-sofa">Corner Sofas</option>
+                <option value="u-shape-sofa">U Shape Sofas</option>
+                <option value="leather-sofa">Leather Sofas</option>
               </select>
             </div>
 

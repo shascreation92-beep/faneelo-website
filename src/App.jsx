@@ -186,6 +186,14 @@ export default function App() {
           const has32 = (p.variants || []).some(v => v.type === '3plus2-seater');
           const nameHas32 = p.name.toLowerCase().includes('3+2') || p.name.toLowerCase().includes('3 plus 2');
           if (!has32 && !nameHas32) return false;
+        } else if (selectedCategory === 'u-shape-sofa' || selectedCategory === 'u-shape') {
+          const hasUShape = (p.variants || []).some(v => v.type === '6-seater' || v.type === 'u-shape' || (v.label && v.label.toLowerCase().includes('u-shape')));
+          const nameHasUShape = p.name.toLowerCase().includes('u-shape') || p.name.toLowerCase().includes('u shaped') || p.name.toLowerCase().includes('6 seater');
+          if (!hasUShape && !nameHasUShape) return false;
+        } else if (selectedCategory === 'leather-sofa') {
+          const text = (p.name + ' ' + (p.description || '') + ' ' + (p.fabric || '')).toLowerCase();
+          const hasLeather = text.includes('leather') || text.includes('chesterfield');
+          if (!hasLeather) return false;
         } else {
           const hasVariant = (p.variants || []).some(v => v.type === selectedCategory);
           if (!hasVariant) return false;
