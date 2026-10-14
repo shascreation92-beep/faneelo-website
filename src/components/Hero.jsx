@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
 const HERO_IMAGES = [
-  'https://britsofa.co.uk/1.png',
-  'https://britsofa.co.uk/2.png',
-  'https://britsofa.co.uk/3.png',
-  'https://britsofa.co.uk/4.png'
+  'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=2000&q=85',
+  'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=2000&q=85',
+  'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=2000&q=85',
+  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=85'
 ];
 
 export default function Hero({ onExploreClick, onCornerClick }) {
