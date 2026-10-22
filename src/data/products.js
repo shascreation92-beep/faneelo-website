@@ -1,7 +1,5 @@
 import rawData from './products.json';
 
-const IMAGE_BASE_URL = 'https://backend.britsofa.co.uk';
-
 export const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1000&q=80';
 
 export function formatImageUrl(url) {
@@ -9,9 +7,19 @@ export function formatImageUrl(url) {
     return FALLBACK_IMAGE;
   }
   if (url.startsWith('http://') || url.startsWith('https://')) {
+    // If it points to dead britsofa backend, replace with fallback
+    if (url.includes('britsofa.co.uk')) {
+      return FALLBACK_IMAGE;
+    }
     return url;
   }
-  return `${IMAGE_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+  if (url.startsWith('/products/') || url.startsWith('/images/') || url.startsWith('/assets/')) {
+    return url;
+  }
+  if (url.startsWith('/uploads/')) {
+    return FALLBACK_IMAGE;
+  }
+  return `${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
 export const STORE_INFO = {
@@ -36,36 +44,68 @@ export const STORE_INFO = {
 
 export const CATEGORIES = [
   {
-    id: '3plus2-seater',
-    name: '3+2 Seater Sofas',
-    tagline: 'Matching Living Room Packages',
-    image: 'https://backend.britsofa.co.uk/uploads/1778439610804-3-2-sofa.webp',
-    badge: 'Best Value',
-    startingPrice: 500
+    id: 'ashton',
+    name: 'Ashton Collection',
+    tagline: 'Classic Tufted Luxury Sofas & Suites',
+    image: '/products/ashton/l-shape/Living_room_with_sofa_and_2K_20261018010528.jpg',
+    badge: 'Featured',
+    startingPrice: 350
   },
   {
-    id: 'corner-sofa',
-    name: 'Corner Sofas',
-    tagline: 'L-Shaped & Chaise Suites',
-    image: 'https://backend.britsofa.co.uk/uploads/1778435615509-Corner-Sofa.jpeg',
+    id: 'borios',
+    name: 'Borios Collection',
+    tagline: 'Modern Deep-Seat Lounging',
+    image: '/products/borios/chaise-l-shape/Placing_sectional_sofa_in_room_2K_20261013235453.jpg',
     badge: 'Popular',
-    startingPrice: 550
+    startingPrice: 380
   },
   {
-    id: 'u-shape-sofa',
-    name: 'U Shape Sofas',
-    tagline: 'Grand Family Living Suites',
-    image: 'https://backend.britsofa.co.uk/uploads/1778712204822-6-Seater-Sofa.jfif.jpg',
+    id: 'chesterfield-fabric',
+    name: 'Chesterfield Fabric',
+    tagline: 'Timeless British Deep-Buttoned Elegance',
+    image: '/products/chesterfield-fabric/corner/Velvet_sofa_in_modern_livingroom_2K_20261016003051.jpg',
+    badge: 'Bestseller',
+    startingPrice: 390
+  },
+  {
+    id: 'chesterfield-leather',
+    name: 'Chesterfield Leather',
+    tagline: 'Heritage Handcrafted Genuine Leather',
+    image: '/products/chesterfield-leather/3-seater/Leather_sofa_studio_photography_2K_20261014225026.jpg',
     badge: 'Grand Luxury',
-    startingPrice: 650
+    startingPrice: 460
   },
   {
-    id: 'leather-sofa',
-    name: 'Leather Sofas',
-    tagline: 'Timeless Handcrafted Luxury',
-    image: 'https://backend.britsofa.co.uk/uploads/1778710605675-4-seater.jpg',
-    badge: 'Classic Heritage',
-    startingPrice: 400
+    id: 'dylan',
+    name: 'Dylan Collection',
+    tagline: 'Cosy Textured Jumbo Cord Suites',
+    image: '/products/dylan/corner/Brown_sectional_sofa_in_living_2K_20261014215359.jpg',
+    badge: 'Family Favourite',
+    startingPrice: 370
+  },
+  {
+    id: 'maya',
+    name: 'Maya Collection',
+    tagline: 'Contemporary Minimalist Scandinavian Chic',
+    image: '/products/maya/corner/Beige_sectional_sofa_on_white_2K_20261016221745.jpg',
+    badge: 'Trending',
+    startingPrice: 340
+  },
+  {
+    id: 'verona',
+    name: 'Verona Collection',
+    tagline: 'Sophisticated Plush Velvet Comfort',
+    image: '/products/verona/3-seater/Place_white_sofa_in_room_2K_20261017230031.jpg',
+    badge: 'New Arrival',
+    startingPrice: 330
+  },
+  {
+    id: 'u-shape-sofas',
+    name: 'U-Shape Sofas',
+    tagline: 'Grand Modular Family Loungers',
+    image: '/products/u-shape/grand-u-shape/Brown_sectional_sofa_displayed_2K_20261013221841.jpg',
+    badge: 'Ultimate Luxury',
+    startingPrice: 680
   }
 ];
 

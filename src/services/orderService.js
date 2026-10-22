@@ -17,7 +17,7 @@ const SAMPLE_ORDER = {
       facing: 'Left Hand Facing (LHF)',
       price: 650,
       quantity: 1,
-      image: 'https://backend.britsofa.co.uk/uploads/1778435615509-Corner-Sofa.jpeg'
+      image: '/products/ashton/l-shape/Living_room_with_sofa_and_2K_20261018010528.jpg'
     }
   ],
   totalAmount: 650,

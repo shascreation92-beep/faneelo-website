@@ -12,13 +12,22 @@ export default function CategoryPage({
   onNavigateCategory
 }) {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory || 'all');
+  const [selectedCollection, setSelectedCollection] = useState(() => {
+    if (!initialCategory || initialCategory === 'all') return 'all';
+    const match = products.find(p => 
+      p.category?.toLowerCase() === initialCategory.toLowerCase() ||
+      p.collection?.toLowerCase().replace(/\s+/g, '-') === initialCategory.toLowerCase() ||
+      p.collection?.toLowerCase() === initialCategory.toLowerCase()
+    );
+    return match ? match.collection : 'all';
+  });
   const [selectedSize, setSelectedSize] = useState(() => {
-    if (initialCategory && initialCategory !== 'all') {
+    if (!initialCategory || initialCategory === 'all') return 'all';
+    if (['corner-sofa', '2-seater', '3-seater', 'u-shape-sofa', 'u-shape', 'leather-sofa'].includes(initialCategory)) {
       return initialCategory;
     }
     return 'all';
   });
-  const [selectedCollection, setSelectedCollection] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [minPrice, setMinPrice] = useState('0');
   const [maxPrice, setMaxPrice] = useState('4000');
@@ -66,32 +75,40 @@ export default function CategoryPage({
       if (targetSize !== 'all') {
         if (targetSize === 'corner-sofa') {
           activeVariant = (p.variants || []).find(v => v.type === 'corner-sofa');
-          const hasCornerVariant = !!activeVariant || p.hasCornerVariant;
-          const nameHasCorner = p.name.toLowerCase().includes('corner') || p.name.toLowerCase().includes('l-shape');
+          const hasCornerVariant = !!activeVariant || p.hasCornerVariant || p.seatingType === 'corner-sofa';
+          const nameHasCorner = p.name.toLowerCase().includes('corner') || p.name.toLowerCase().includes('l-shape') || p.name.toLowerCase().includes('2c2');
           if (!hasCornerVariant && !nameHasCorner) return;
           if (!activeVariant && (p.variants || []).length > 0) {
-            activeVariant = p.variants.find(v => v.type === '5-seater') || p.variants[0];
+            activeVariant = p.variants[0];
           }
-        } else if (targetSize === '3plus2-seater') {
-          activeVariant = (p.variants || []).find(v => v.type === '3plus2-seater');
-          const has32 = !!activeVariant;
-          const nameHas32 = p.name.toLowerCase().includes('3+2') || p.name.toLowerCase().includes('3 plus 2');
-          if (!has32 && !nameHas32) return;
-        } else if (targetSize === 'u-shape-sofa' || targetSize === 'u-shape' || targetSize === '6-seater') {
-          activeVariant = (p.variants || []).find(v => v.type === '6-seater' || v.type === 'u-shape' || (v.label && v.label.toLowerCase().includes('u-shape')));
-          const hasUShape = !!activeVariant || p.name.toLowerCase().includes('u-shape') || p.name.toLowerCase().includes('u shaped') || p.name.toLowerCase().includes('6 seater');
-          if (!hasUShape) return;
+        } else if (targetSize === '2-seater') {
+          activeVariant = (p.variants || []).find(v => v.type === '2-seater');
+          const is2 = p.seatingType === '2-seater' || p.name.toLowerCase().includes('2 seater');
+          if (!activeVariant && !is2) return;
           if (!activeVariant && (p.variants || []).length > 0) {
-            activeVariant = p.variants.find(v => v.type === '6-seater') || p.variants[0];
+            activeVariant = p.variants[0];
+          }
+        } else if (targetSize === '3-seater') {
+          activeVariant = (p.variants || []).find(v => v.type === '3-seater');
+          const is3 = p.seatingType === '3-seater' || p.name.toLowerCase().includes('3 seater');
+          if (!activeVariant && !is3) return;
+          if (!activeVariant && (p.variants || []).length > 0) {
+            activeVariant = p.variants[0];
+          }
+        } else if (targetSize === 'u-shape-sofa' || targetSize === 'u-shape') {
+          activeVariant = (p.variants || []).find(v => v.type === 'u-shape');
+          const isU = p.category === 'u-shape-sofas' || p.seatingType === 'u-shape-sofa' || p.name.toLowerCase().includes('u-shape');
+          if (!activeVariant && !isU) return;
+          if (!activeVariant && (p.variants || []).length > 0) {
+            activeVariant = p.variants[0];
           }
         } else if (targetSize === 'leather-sofa' || targetSize === 'leather') {
-          const text = (p.name + ' ' + (p.description || '') + ' ' + (p.fabric || '')).toLowerCase();
-          const hasLeather = text.includes('leather') || text.includes('chesterfield');
-          if (!hasLeather) return;
+          const text = (p.name + ' ' + (p.description || '') + ' ' + (p.fabric || '') + ' ' + (p.collection || '')).toLowerCase();
+          if (!text.includes('leather')) return;
           activeVariant = p.variants?.[0] || null;
         } else {
           activeVariant = (p.variants || []).find(v => v.type === targetSize);
-          if (!activeVariant) return;
+          if (!activeVariant && p.seatingType !== targetSize) return;
         }
       }
 
@@ -214,10 +231,11 @@ export default function CategoryPage({
                 onChange={(e) => handleSizeChange(e.target.value)}
                 className="w-full rounded-xl border border-[#D6D3D1] bg-white px-3 py-2 text-xs font-medium text-[#1C1C1C] focus:border-[#1C1C1C] focus:outline-none transition cursor-pointer shadow-2xs font-sans"
               >
-                <option value="all">All categories</option>
-                <option value="3plus2-seater">3+2 Seater Sofas</option>
-                <option value="corner-sofa">Corner Sofas</option>
-                <option value="u-shape-sofa">U Shape Sofas</option>
+                <option value="all">All Seating Types</option>
+                <option value="corner-sofa">Corner & L-Shape Sofas</option>
+                <option value="2-seater">2 Seater Sofas</option>
+                <option value="3-seater">3 Seater Sofas</option>
+                <option value="u-shape-sofa">U-Shape Sofas</option>
                 <option value="leather-sofa">Leather Sofas</option>
               </select>
             </div>

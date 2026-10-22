@@ -178,25 +178,29 @@ export default function App() {
       }
 
       if (selectedCategory !== 'all') {
-        if (selectedCategory === 'corner-sofa') {
-          const hasCornerVariant = (p.variants || []).some(v => v.type === 'corner-sofa') || p.hasCornerVariant;
-          const nameHasCorner = p.name.toLowerCase().includes('corner') || p.name.toLowerCase().includes('l-shape');
+        const cat = selectedCategory.toLowerCase();
+        const matchesCategory = (p.category && p.category.toLowerCase() === cat) ||
+                                (p.collection && p.collection.toLowerCase().replace(/\s+/g, '-') === cat) ||
+                                (p.collection && p.collection.toLowerCase() === cat);
+        if (matchesCategory) return true;
+
+        if (cat === 'corner-sofa' || cat === 'corner') {
+          const hasCornerVariant = (p.variants || []).some(v => v.type === 'corner-sofa') || p.hasCornerVariant || p.seatingType === 'corner-sofa';
+          const nameHasCorner = p.name.toLowerCase().includes('corner') || p.name.toLowerCase().includes('l-shape') || p.name.toLowerCase().includes('2c2');
           if (!hasCornerVariant && !nameHasCorner) return false;
-        } else if (selectedCategory === '3plus2-seater') {
-          const has32 = (p.variants || []).some(v => v.type === '3plus2-seater');
-          const nameHas32 = p.name.toLowerCase().includes('3+2') || p.name.toLowerCase().includes('3 plus 2');
-          if (!has32 && !nameHas32) return false;
-        } else if (selectedCategory === 'u-shape-sofa' || selectedCategory === 'u-shape') {
-          const hasUShape = (p.variants || []).some(v => v.type === '6-seater' || v.type === 'u-shape' || (v.label && v.label.toLowerCase().includes('u-shape')));
-          const nameHasUShape = p.name.toLowerCase().includes('u-shape') || p.name.toLowerCase().includes('u shaped') || p.name.toLowerCase().includes('6 seater');
-          if (!hasUShape && !nameHasUShape) return false;
-        } else if (selectedCategory === 'leather-sofa') {
-          const text = (p.name + ' ' + (p.description || '') + ' ' + (p.fabric || '')).toLowerCase();
-          const hasLeather = text.includes('leather') || text.includes('chesterfield');
-          if (!hasLeather) return false;
+        } else if (cat === '2-seater') {
+          if (p.seatingType !== '2-seater' && !(p.variants || []).some(v => v.type === '2-seater')) return false;
+        } else if (cat === '3-seater') {
+          if (p.seatingType !== '3-seater' && !(p.variants || []).some(v => v.type === '3-seater')) return false;
+        } else if (cat === 'u-shape-sofa' || cat === 'u-shape' || cat === 'u-shape-sofas') {
+          const isU = p.category === 'u-shape-sofas' || p.seatingType === 'u-shape-sofa' || p.name.toLowerCase().includes('u-shape');
+          if (!isU) return false;
+        } else if (cat === 'leather-sofa' || cat === 'chesterfield-leather') {
+          const text = (p.name + ' ' + (p.description || '') + ' ' + (p.fabric || '') + ' ' + (p.collection || '')).toLowerCase();
+          if (!text.includes('leather')) return false;
         } else {
           const hasVariant = (p.variants || []).some(v => v.type === selectedCategory);
-          if (!hasVariant) return false;
+          if (!hasVariant && p.seatingType !== selectedCategory) return false;
         }
       }
 

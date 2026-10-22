@@ -45,7 +45,7 @@ export default function Header({
 
           <button 
             type="button"
-            onClick={() => onSelectCategory('corner-sofa')}
+            onClick={() => onSelectCategory('all')}
             className="text-sm font-semibold text-[#57534E] transition-colors hover:text-[#0A0A0A] bg-transparent border-0 cursor-pointer"
           >
             Collections
@@ -123,10 +123,10 @@ export default function Header({
           </button>
           <button
             type="button"
-            onClick={() => { onSelectCategory('corner-sofa'); setMobileOpen(false); }}
+            onClick={() => { onSelectCategory('all'); setMobileOpen(false); }}
             className="text-left text-sm font-semibold text-[#57534E] py-2 border-0 bg-transparent cursor-pointer"
           >
-            Collections (Corner &amp; Suites)
+            All Collections
           </button>
           <button
             type="button"

@@ -1,31 +1,4 @@
-import React from 'react';
-
-const CATEGORIES = [
-  {
-    id: '3plus2-seater',
-    name: '3+2 Seater Sofas',
-    description: 'Matching Living Room Packages',
-    image: 'https://backend.britsofa.co.uk/uploads/1778439610804-3-2-sofa.webp'
-  },
-  {
-    id: 'corner-sofa',
-    name: 'Corner Sofas',
-    description: 'L-Shaped & Chaise Suites',
-    image: 'https://backend.britsofa.co.uk/uploads/1778435615509-Corner-Sofa.jpeg'
-  },
-  {
-    id: 'u-shape-sofa',
-    name: 'U Shape Sofas',
-    description: 'Grand Family Living Suites',
-    image: 'https://backend.britsofa.co.uk/uploads/1778712204822-6-Seater-Sofa.jfif.jpg'
-  },
-  {
-    id: 'leather-sofa',
-    name: 'Leather Sofas',
-    description: 'Timeless Handcrafted Luxury',
-    image: 'https://backend.britsofa.co.uk/uploads/1778710605675-4-seater.jpg'
-  }
-];
+import { CATEGORIES, formatImageUrl, FALLBACK_IMAGE } from '../data/products';
 
 export default function CategoriesGrid({ selectedCategory, onSelectCategory }) {
   return (
@@ -55,8 +28,13 @@ export default function CategoriesGrid({ selectedCategory, onSelectCategory }) {
                 {/* Background Image with Hover Zoom */}
                 <div className="absolute inset-0">
                   <img
-                    src={cat.image}
+                    src={formatImageUrl(cat.image)}
                     alt={cat.name}
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = FALLBACK_IMAGE;
+                    }}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   {/* Exact dark gradient overlay */}
@@ -65,11 +43,14 @@ export default function CategoriesGrid({ selectedCategory, onSelectCategory }) {
 
                 {/* Content at Bottom-Left */}
                 <div className="absolute inset-0 flex flex-col justify-end p-6 z-10">
+                  <span className="inline-block self-start mb-2 rounded-full bg-white/20 backdrop-blur-md px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-white">
+                    {cat.badge || 'Collection'}
+                  </span>
                   <h3 className="text-2xl font-bold text-white mb-1 font-display">
                     {cat.name}
                   </h3>
                   <p className="text-sm text-white/90 mb-3">
-                    {cat.description}
+                    {cat.tagline || cat.description}
                   </p>
                   <div className="inline-flex items-center gap-2 text-white font-semibold text-sm transition-transform duration-300 group-hover:translate-x-1">
                     <span>{isSelected ? 'Active Filter ✓' : 'Explore'}</span>

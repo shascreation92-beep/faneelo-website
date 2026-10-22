@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Trash2, ShoppingBag, Truck, Banknote, ArrowRight } from 'lucide-react';
-import { STORE_INFO } from '../data/products';
+import { STORE_INFO, FALLBACK_IMAGE } from '../data/products';
 
 export default function CartDrawer({ 
   isOpen, 
@@ -99,6 +99,11 @@ export default function CartDrawer({
                   <img
                     src={item.image}
                     alt={item.name}
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = FALLBACK_IMAGE;
+                    }}
                     className="h-full w-full object-cover"
                   />
                 </div>
