@@ -12,11 +12,44 @@ import AboutModal from './components/AboutModal';
 import FaqModal from './components/FaqModal';
 import WhatsAppButton from './components/WhatsAppButton';
 import Footer from './components/Footer';
+import MaintenancePage from './components/MaintenancePage';
 
 import { PRODUCTS } from './data/products';
+import { SITE_CONFIG } from './config/siteSettings';
 
 export default function App() {
   const productsList = PRODUCTS;
+
+  // Maintenance mode bypass state (for admin/developer testing)
+  const [isBypassed, setIsBypassed] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('preview') === 'true' || params.get('admin') === 'true') {
+        return true;
+      }
+      return sessionStorage.getItem('faneelo_maintenance_bypass') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const handleEnableBypass = () => {
+    setIsBypassed(true);
+    try {
+      sessionStorage.setItem('faneelo_maintenance_bypass', 'true');
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDisableBypass = () => {
+    setIsBypassed(false);
+    try {
+      sessionStorage.removeItem('faneelo_maintenance_bypass');
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const [selectedCategory, setSelectedCategory] = useState('all');
   const searchQuery = '';
@@ -212,8 +245,35 @@ export default function App() {
     });
   }, [productsList, searchQuery, selectedCategory, sortOption]);
 
+  // Full-screen "Working on site" maintenance mode
+  if (SITE_CONFIG.maintenanceMode && !isBypassed) {
+    return <MaintenancePage onBypass={handleEnableBypass} />;
+  }
+
   return (
     <div className="min-h-full bg-[#F5F5F4] text-[#0A0A0A] font-sans">
+      {/* Admin Preview Notification Bar (Shown when admin is viewing live store during maintenance) */}
+      {SITE_CONFIG.maintenanceMode && isBypassed && (
+        <div className="bg-[#D4AF37] text-black px-4 py-2 text-xs font-semibold flex flex-wrap items-center justify-between gap-2 sticky top-0 z-[100] shadow-md border-b border-black/10">
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-black opacity-75"></span>
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-black"></span>
+            </span>
+            <span>
+              <strong>MAINTENANCE MODE IS ACTIVE:</strong> Public visitors currently see the "Working On Site" screen. You are previewing as Admin.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={handleDisableBypass}
+            className="rounded-full bg-black text-white px-3 py-1 text-[11px] font-bold hover:bg-stone-800 transition cursor-pointer border-0"
+          >
+            Exit Preview & View Notice
+          </button>
+        </div>
+      )}
+
       {/* 1. Global Floating Pill Header */}
       <Header
         cartCount={cartCount}
