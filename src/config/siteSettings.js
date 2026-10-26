@@ -7,7 +7,7 @@
 export const SITE_CONFIG = {
   // Set to `true` to show the full-screen "Working on site" page to visitors.
   // Set to `false` when the website is ready for normal public browsing.
-  maintenanceMode: true,
+  maintenanceMode: false,
 
   // Notice text and details
   notice: {
