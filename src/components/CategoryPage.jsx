@@ -11,9 +11,11 @@ export default function CategoryPage({
   onAddToCart,
   onNavigateCategory
 }) {
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory || 'all');
   const [selectedCollection, setSelectedCollection] = useState(() => {
     if (!initialCategory || initialCategory === 'all') return 'all';
+    if (['corner-sofa', '2-seater', '3-seater', 'leather-sofa'].includes(initialCategory)) {
+      return 'all';
+    }
     const match = products.find(p => 
       p.category?.toLowerCase() === initialCategory.toLowerCase() ||
       p.collection?.toLowerCase().replace(/\s+/g, '-') === initialCategory.toLowerCase() ||
@@ -23,8 +25,8 @@ export default function CategoryPage({
   });
   const [selectedSize, setSelectedSize] = useState(() => {
     if (!initialCategory || initialCategory === 'all') return 'all';
-    if (['corner-sofa', '2-seater', '3-seater', 'u-shape-sofa', 'u-shape', 'leather-sofa'].includes(initialCategory)) {
-      return initialCategory;
+    if (['corner-sofa', '2-seater', '3-seater', 'u-shape-sofa', 'u-shape', 'u-shape-sofas', 'leather-sofa'].includes(initialCategory)) {
+      return initialCategory === 'u-shape-sofas' ? 'u-shape-sofa' : initialCategory;
     }
     return 'all';
   });
@@ -47,7 +49,7 @@ export default function CategoryPage({
     return Array.from(set);
   }, [products]);
 
-  const targetSize = selectedSize !== 'all' ? selectedSize : selectedCategory !== 'all' ? selectedCategory : 'all';
+  const targetSize = selectedSize;
 
   // Filter & map products into items with their specific variant for targetSize
   const filteredProducts = useMemo(() => {
@@ -95,9 +97,9 @@ export default function CategoryPage({
           if (!activeVariant && (p.variants || []).length > 0) {
             activeVariant = p.variants[0];
           }
-        } else if (targetSize === 'u-shape-sofa' || targetSize === 'u-shape') {
-          activeVariant = (p.variants || []).find(v => v.type === 'u-shape');
-          const isU = p.category === 'u-shape-sofas' || p.seatingType === 'u-shape-sofa' || p.name.toLowerCase().includes('u-shape');
+        } else if (targetSize === 'u-shape-sofa' || targetSize === 'u-shape' || targetSize === 'u-shape-sofas') {
+          activeVariant = (p.variants || []).find(v => v.type === 'u-shape' || v.type === 'u-shape-sofa');
+          const isU = p.category === 'u-shape-sofas' || p.seatingType === 'u-shape-sofa' || p.name.toLowerCase().includes('u-shape') || p.collection === 'U-Shape Sofas';
           if (!activeVariant && !isU) return;
           if (!activeVariant && (p.variants || []).length > 0) {
             activeVariant = p.variants[0];
@@ -137,14 +139,12 @@ export default function CategoryPage({
 
   const handleSizeChange = (newSize) => {
     setSelectedSize(newSize);
-    setSelectedCategory(newSize);
     if (onNavigateCategory) {
       onNavigateCategory(newSize);
     }
   };
 
   const handleClearFilters = () => {
-    setSelectedCategory('all');
     setSelectedSize('all');
     setSelectedCollection('all');
     setSearchQuery('');
