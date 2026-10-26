@@ -138,13 +138,15 @@ export default function MaintenancePage({ onBypass }) {
               <ArrowRight className="h-4 w-4" />
             </a>
 
-            <a
-              href={`tel:${STORE_INFO.phone}`}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-white/15 cursor-pointer no-underline"
-            >
-              <Phone className="h-4 w-4" />
-              <span>Call Us</span>
-            </a>
+            {STORE_INFO.phone && (
+              <a
+                href={`tel:${STORE_INFO.phone}`}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-white/15 cursor-pointer no-underline"
+              >
+                <Phone className="h-4 w-4" />
+                <span>Call Us</span>
+              </a>
+            )}
           </div>
 
           <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-stone-400">

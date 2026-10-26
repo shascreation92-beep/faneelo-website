@@ -160,11 +160,13 @@ export default function Footer({ onSelectCategory, onOpenAbout, onOpenFaq }) {
               Get in Touch
             </h3>
             <div className="space-y-2.5 text-sm text-white/75">
-              <p>
-                <a href={`tel:${STORE_INFO.phone}`} className="hover:text-white transition-colors text-white no-underline font-semibold">
-                  {STORE_INFO.phone}
-                </a>
-              </p>
+              {STORE_INFO.phone && (
+                <p>
+                  <a href={`tel:${STORE_INFO.phone}`} className="hover:text-white transition-colors text-white no-underline font-semibold">
+                    {STORE_INFO.phone}
+                  </a>
+                </p>
+              )}
               <p>
                 <a href={`mailto:${STORE_INFO.email}`} className="hover:text-white transition-colors text-white/75 no-underline">
                   {STORE_INFO.email}

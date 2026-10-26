@@ -185,7 +185,7 @@ export default function CheckoutModal({ isOpen, onClose, items, onOrderSuccess }
                 style={{ width: '100%', textDecoration: 'none', padding: '0.9rem' }}
               >
                 <MessageCircle size={18} />
-                <span>Track &amp; Confirm on WhatsApp ({STORE_INFO.phone})</span>
+                <span>Track &amp; Confirm on WhatsApp{STORE_INFO.phone ? ` (${STORE_INFO.phone})` : ''}</span>
               </a>
 
               <button
